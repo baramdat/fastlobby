@@ -11,6 +11,11 @@ Video chat
         <div class="col-lg-3"> </div>
         <div class="col-lg-6">
             <h3 class="text-center mt-3">Select Users For Chat</h3>
+            @if(isset($error))
+                <div class="alert alert-danger" role="alert">
+                    There is exceptional error: "{{$error}}", please contact admin.
+                </div>
+            @endif
             <div class="card">
                 <ul class="list-group list-group-flush">
                     @if(isset($users) && sizeof($users) > 0)
