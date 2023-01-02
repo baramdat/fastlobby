@@ -482,7 +482,7 @@ User add
                 },
                 success: function(response) {                                    
                     if (response["status"] == 400) {
-                        toastr.error('Failed', isArray(response.msg) ? response.msg[0] : response.msg);
+                        toastr.error('Failed', Array.isArray(response.msg) ? response.msg[0] : response.msg);
                     } else if (response["status"] == "success") {
                         toastr.success('Success', response["msg"]);
                         $("#add_user")[0].reset();

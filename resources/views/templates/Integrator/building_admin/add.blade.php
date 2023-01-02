@@ -480,7 +480,7 @@ User add
 
                     if (response["status"] == "fail") {
 
-                        toastr.error('Failed', isArray(response.msg) ? response.msg[0] : response.msg);
+                        toastr.error('Failed', Array.isArray(response.msg) ? response.msg[0] : response.msg);
 
                     } else if (response["status"] == "success") {
 
