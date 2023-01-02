@@ -176,7 +176,7 @@ class VideoRoomsController extends Controller
                 $q->where('name', 'Tenant');
             })->where('id', $user->parent_id)->first();
         }
-
+        return [config('services.twilio.token'),config('services.twilio.sid')];
         $token = config('services.twilio.token');
         $sid = config('services.twilio.sid');
         $client = new Client($sid, $token);
@@ -187,7 +187,7 @@ class VideoRoomsController extends Controller
         }, $allRooms);
         return view('templates/chat/compose_video_chat', ['users' => $users, 'rooms' => $rooms]);
     }
-    
+
     //Room built method
     public function RoomBuilt(Request $request, $id)
     {
