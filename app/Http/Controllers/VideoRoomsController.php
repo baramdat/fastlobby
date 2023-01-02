@@ -180,7 +180,7 @@ class VideoRoomsController extends Controller
         $token = config('services.twilio.token');
         $sid = config('services.twilio.sid');
         $client = new Client($sid, $token);       
-        return [$client];
+        return [$client->video->rooms->read([])];
         $allRooms = $client->video->rooms->read([]);
         $rooms = array_map(function ($room) {
             return $room->uniqueName;
