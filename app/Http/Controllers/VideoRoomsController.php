@@ -176,12 +176,12 @@ class VideoRoomsController extends Controller
                 $q->where('name', 'Tenant');
             })->where('id', $user->parent_id)->first();
         }
-        return [config('services.twilio.token'),config('services.twilio.sid')];
+        
         $token = config('services.twilio.token');
         $sid = config('services.twilio.sid');
         $client = new Client($sid, $token);
         $allRooms = $client->video->rooms->read([]);
-
+        return [$allRooms];
         $rooms = array_map(function ($room) {
             return $room->uniqueName;
         }, $allRooms);
