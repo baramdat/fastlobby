@@ -42,150 +42,156 @@ class VideoRoomsController extends Controller
     //video chat compose page
     public function videoChatCompose()
     {
-        $user = Auth::user();
-        $site = Site::where('id', $user->site_id)->first();
-        $users = [];
-        $rooms = [];
-        if ($user->hasRole('Admin')) {
-            $all = User::whereHas('roles', function ($q) {
-                $q->where('name', 'BuildingAdmin')->orWhere('name', 'Integrator');
-            })->get();
+        try{
+            $user = Auth::user();
+            $site = Site::where('id', $user->site_id)->first();
+            $users = [];
+            $rooms = [];
+            if ($user->hasRole('Admin')) {
+                $all = User::whereHas('roles', function ($q) {
+                    $q->where('name', 'BuildingAdmin')->orWhere('name', 'Integrator');
+                })->get();
 
-            if (isset($all) && sizeof($all) > 0) {
+                if (isset($all) && sizeof($all) > 0) {
 
-                foreach ($all as $single) {
+                    foreach ($all as $single) {
 
-                    $users[] = User::find($single->id);
-                }
-            }
-        } elseif ($user->hasRole('Integrator')) {
-
-
-            $Integrators = User::whereHas('roles', function ($q) {
-                $q->where('name', 'Admin');
-            })->get();
-
-            if (isset($Integrators) && sizeof($Integrators) > 0) {
-
-                foreach ($Integrators as $value) {
-                    $u = User::find($value->id);
-                    if (!empty($u)) {
-                        $users[] = $u;
+                        $users[] = User::find($single->id);
                     }
                 }
-            }
-            $buildingAdmins = User::whereHas('roles', function ($q) {
-                $q->where('name', 'BuildingAdmin');
-            })->where('parent_id', $user->id)->get();
+            } elseif ($user->hasRole('Integrator')) {
 
-            if (isset($buildingAdmins) && sizeof($buildingAdmins) > 0) {
 
-                foreach ($buildingAdmins as $buildingAdmin) {
+                $Integrators = User::whereHas('roles', function ($q) {
+                    $q->where('name', 'Admin');
+                })->get();
 
-                    $us = User::where('id', $buildingAdmin->id)->first();
+                if (isset($Integrators) && sizeof($Integrators) > 0) {
 
-                    if (!empty($us)) {
-
-                        $users[] = $us;
+                    foreach ($Integrators as $value) {
+                        $u = User::find($value->id);
+                        if (!empty($u)) {
+                            $users[] = $u;
+                        }
                     }
                 }
-            }
-        } elseif ($user->hasRole("BuildingAdmin")) {
+                $buildingAdmins = User::whereHas('roles', function ($q) {
+                    $q->where('name', 'BuildingAdmin');
+                })->where('parent_id', $user->id)->get();
 
-            $BuildingAdmins = User::whereHas('roles', function ($q) {
+                if (isset($buildingAdmins) && sizeof($buildingAdmins) > 0) {
 
-                $q->where('name', 'Integrator');
-            })->where('id', $user->parent_id)->get();
+                    foreach ($buildingAdmins as $buildingAdmin) {
 
+                        $us = User::where('id', $buildingAdmin->id)->first();
 
-            if (isset($BuildingAdmins) && sizeof($BuildingAdmins) > 0) {
+                        if (!empty($us)) {
 
-                foreach ($BuildingAdmins as $value) {
-
-                    $users[] = User::find($value->id);
+                            $users[] = $us;
+                        }
+                    }
                 }
-            }
+            } elseif ($user->hasRole("BuildingAdmin")) {
 
-            $Admins = User::whereHas('roles', function ($q) {
+                $BuildingAdmins = User::whereHas('roles', function ($q) {
 
-                $q->where('name', 'Admin');
-            })->get();
+                    $q->where('name', 'Integrator');
+                })->where('id', $user->parent_id)->get();
 
-            if (isset($Admins) && sizeof($Admins) > 0) {
 
-                foreach ($Admins as $value) {
+                if (isset($BuildingAdmins) && sizeof($BuildingAdmins) > 0) {
 
-                    $users[] = User::find($value->id);
+                    foreach ($BuildingAdmins as $value) {
+
+                        $users[] = User::find($value->id);
+                    }
                 }
-            }
 
-            $Tenants = User::whereHas('roles', function ($q) {
+                $Admins = User::whereHas('roles', function ($q) {
 
-                $q->where('name', 'Tenant');
-            })->where('parent_id', $user->id)->get();
+                    $q->where('name', 'Admin');
+                })->get();
 
-            if (isset($Tenants) && sizeof($Tenants) > 0) {
+                if (isset($Admins) && sizeof($Admins) > 0) {
 
-                foreach ($Tenants as $value) {
+                    foreach ($Admins as $value) {
 
-                    $users[] = User::find($value->id);
+                        $users[] = User::find($value->id);
+                    }
                 }
-            }
-        } elseif ($user->hasRole("Tenant")) {
 
+                $Tenants = User::whereHas('roles', function ($q) {
 
+                    $q->where('name', 'Tenant');
+                })->where('parent_id', $user->id)->get();
 
-            $us = User::whereHas('roles', function ($q) {
+                if (isset($Tenants) && sizeof($Tenants) > 0) {
 
-                $q->where('name', 'BuildingAdmin');
-            })->where('id', $user->parent_id)->first();
+                    foreach ($Tenants as $value) {
 
-            if ($us) {
-
-                $users[] = $us;
-            }
-
-            $Employees = User::whereHas('roles', function ($q) {
-
-                $q->where('name', 'Employee');
-            })->where('parent_id', $user->id)->get();
-
-            if (isset($Employees) && sizeof($Employees) > 0) {
-
-                foreach ($Employees as $value) {
-
-                    $users[] = User::find($value->id);
+                        $users[] = User::find($value->id);
+                    }
                 }
+            } elseif ($user->hasRole("Tenant")) {
+
+
+
+                $us = User::whereHas('roles', function ($q) {
+
+                    $q->where('name', 'BuildingAdmin');
+                })->where('id', $user->parent_id)->first();
+
+                if ($us) {
+
+                    $users[] = $us;
+                }
+
+                $Employees = User::whereHas('roles', function ($q) {
+
+                    $q->where('name', 'Employee');
+                })->where('parent_id', $user->id)->get();
+
+                if (isset($Employees) && sizeof($Employees) > 0) {
+
+                    foreach ($Employees as $value) {
+
+                        $users[] = User::find($value->id);
+                    }
+                }
+
+
+                $f = User::whereHas('roles', function ($q) {
+
+                    $q->where('name', 'Integrator');
+                })->where('site_id', $site->id)->first();
+
+                if ($f) {
+
+                    $users[] = $f;
+                }
+            } elseif ($user->hasRole("Employee")) {
+
+
+                $users[] = User::whereHas('roles', function ($q) {
+
+                    $q->where('name', 'Tenant');
+                })->where('id', $user->parent_id)->first();
             }
-
-
-            $f = User::whereHas('roles', function ($q) {
-
-                $q->where('name', 'Integrator');
-            })->where('site_id', $site->id)->first();
-
-            if ($f) {
-
-                $users[] = $f;
-            }
-        } elseif ($user->hasRole("Employee")) {
-
-
-            $users[] = User::whereHas('roles', function ($q) {
-
-                $q->where('name', 'Tenant');
-            })->where('id', $user->parent_id)->first();
+            
+            $token = config('services.twilio.token');
+            $sid = config('services.twilio.sid');
+            $client = new Client($sid, $token);       
+            
+            $allRooms = $client->video->rooms->read([]);
+            $rooms = array_map(function ($room) {
+                return $room->uniqueName;
+            }, $allRooms);
+            return view('templates/chat/compose_video_chat', ['users' => $users, 'rooms' => $rooms]);
         }
-        
-        $token = config('services.twilio.token');
-        $sid = config('services.twilio.sid');
-        $client = new Client($sid, $token);       
-        
-        $allRooms = $client->video->rooms->read([]);
-        $rooms = array_map(function ($room) {
-            return $room->uniqueName;
-        }, $allRooms);
-        return view('templates/chat/compose_video_chat', ['users' => $users, 'rooms' => $rooms]);
+        catch(\Exception $e){
+            return view('templates/chat/compose_video_chat', ['users' => [], 'rooms' => [],'error' => $e->getMessage()]);
+        }
+
     }
 
     //Room built method
