@@ -187,6 +187,7 @@ class VideoRoomsController extends Controller
         }, $allRooms);
         return view('templates/chat/compose_video_chat', ['users' => $users, 'rooms' => $rooms]);
     }
+    
     //Room built method
     public function RoomBuilt(Request $request, $id)
     {
