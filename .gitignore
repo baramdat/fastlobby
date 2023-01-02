@@ -13,3 +13,5 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
+/node.fastlobby.com/_node_modules
+/node.fastlobby.com/node_modules
