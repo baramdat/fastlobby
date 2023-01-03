@@ -22,6 +22,7 @@ class chatController extends Controller
         $user = Auth::user();
         $site = Site::where('id', $user->site_id)->first();
         $users = [];
+        $cureent_role = "User";
 
         if ($user->hasRole('Admin')) {
 
