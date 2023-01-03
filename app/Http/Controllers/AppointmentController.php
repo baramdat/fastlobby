@@ -797,10 +797,6 @@ class AppointmentController extends Controller
 
         return response()->json(['status'=>'success','msg'=>'Mail sent']);
 
-
-
-
-
     } 
 
     
