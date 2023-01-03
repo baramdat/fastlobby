@@ -13,7 +13,7 @@ Video chat
             <h3 class="text-center mt-3">Select Users For Chat</h3>
             @if(isset($error))
                 <div class="alert alert-danger" role="alert">
-                    There is exceptional error: "{{$error}}", please contact admin.
+                    <b>Error:</b> "{{$error}}", please contact admin.
                 </div>
             @endif
             <div class="card">

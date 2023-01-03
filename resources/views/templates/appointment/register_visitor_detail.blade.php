@@ -158,7 +158,7 @@
                                          @else
                                     <div class="text-center">
                                         <p><strong class="text-danger"> This appointment has already been checked!</strong></p>
-                                        <a href="{{url('qr-scan')}}" class="btn btn-success mt-2">
+                                        <a href="{{url()->previous()}}" class="btn btn-success mt-2">
                                             Go Back
                                         </a>
                                     </div>
