@@ -480,8 +480,8 @@ User add
 
                     $(".fa-pulse").css('display', 'none');
                 },
-                success: function(response) {                                    
-                    if (response["status"] == 400) {
+                success: function(response) {                                
+                    if (response["status"] == "fail") {
                         toastr.error('Failed', Array.isArray(response.msg) ? response.msg[0] : response.msg);
                     } else if (response["status"] == "success") {
                         toastr.success('Success', response["msg"]);
