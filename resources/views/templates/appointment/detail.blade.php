@@ -271,12 +271,12 @@
                             <div class="col-6"></div>
 
                             <div class="col-6 text-end">
-
-                                @if(isset(Auth::id()) && Auth::user()->hasRole('Guard')
+                                <a href="javascript:;" class="btn btn-primary btnInform" id="{{$app->id}}"><i class="fa fa-spinner fa-spin" style="display:none;"></i> Inform Client</a>
+                                <!-- @if(isset(Auth::id()) && Auth::user()->hasRole('Guard')
 
                                 <a href="javascript:;" class="btn btn-primary btnInform" id="{{$app->id}}"><i class="fa fa-spinner fa-spin" style="display:block;"></i> Inform Client</a>
                                 <a href="{{url()->previous()}}" class="btn btn-success btnGoBack" id="{{$app->id}}"><i class="fa fa-spinner fa-spin" style="display:none;"></i> Go Back</a>
-                                @endif
+                                @endif -->
                             </div>
 
 

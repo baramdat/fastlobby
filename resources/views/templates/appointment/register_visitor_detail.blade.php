@@ -148,20 +148,20 @@
                                     </div>
                                     <hr>
                                     @if($app->status == 'pending')
-                                    <div class="text-center">
+                                        <div class="text-center">
                                             <a href="{{url('qr-scan')}}" id="btnElm" class="btn btn-success rounded-circle design" style="font-size:60px;font-weight:600;">
                                                 GO
                                             </a>
                                             <p id="counter-sec" style="margin-top:10px;color:red;display:none">
                                                 You'll be automatically redirected in <span id="count">5</span> seconds...</p>
                                         </div>
-                                         @else
-                                    <div class="text-center">
-                                        <p><strong class="text-danger"> This appointment has already been checked!</strong></p>
-                                        <a href="{{url()->previous()}}" class="btn btn-success mt-2">
-                                            Go Back
-                                        </a>
-                                    </div>
+                                    @else
+                                        <div class="text-center">
+                                            <p><strong class="text-danger"> This appointment has already been checked!</strong></p>
+                                            <a href="{{url()->previous()}}" class="btn btn-success mt-2">
+                                                Go Back
+                                            </a>
+                                        </div>
                                     @endif
                                 </div>
                             </div>

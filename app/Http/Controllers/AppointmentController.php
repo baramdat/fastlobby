@@ -740,62 +740,67 @@ class AppointmentController extends Controller
 
       public function informClient(Request $request){
 
-        $visitor = Appointment::find($request->id);
+        try {
 
-        $client = User::find($visitor->tenant_id);
+            $visitor = Appointment::find($request->id);
 
-
-
-        
+            $client = User::find($visitor->tenant_id);
 
 
 
-        Mail::send('templates.email.visitor_appointment_request', ['client'=>$client,'visitor'=>$visitor], function ($message) use ($client) {
-
-            $message->to($client->email);
-
-            $message->subject('Guest Arrived');
-
-            $message->from(env('MAIL_FROM_ADDRESS'), 'Fastlobby');
-
-        });
+            
 
 
 
-        //twillo sms
-        $account_sid = config('services.twilio.sid');
-        $auth_token = config('services.twilio.token');
-        $twilio_number = config('services.twilio.phone');
+            Mail::send('templates.email.visitor_appointment_request', ['client'=>$client,'visitor'=>$visitor], function ($message) use ($client) {
+
+                $message->to($client->email);
+
+                $message->subject('Guest Arrived');
+
+                $message->from(env('MAIL_FROM_ADDRESS'), 'Fastlobby');
+
+            });
 
 
 
-        $receiverNumber = $client->phone;
+            //twillo sms
+            $account_sid = config('services.twilio.sid');
+            $auth_token = config('services.twilio.token');
+            $twilio_number = config('services.twilio.phone');
 
 
 
-        $message = 'Your Guest ('.$visitor->name.') Has Arrived';
-
-        if($receiverNumber!=" "){
+            $receiverNumber = $client->phone;
 
 
 
-            $client = new Client($account_sid, $auth_token);
+            $message = 'Your Guest ('.$visitor->name.') Has Arrived';
 
-            $client->messages->create($receiverNumber, [
+            if($receiverNumber!=" "){
 
-                'from' => $twilio_number, 
 
-                'body' => $message
 
-            ]);
+                $client = new Client($account_sid, $auth_token);
 
+                $client->messages->create($receiverNumber, [
+
+                    'from' => $twilio_number, 
+
+                    'body' => $message
+
+                ]);
+
+            }
+
+            $visitor->status = "check_in";
+
+            $visitor->save();
+
+            return response()->json(['status'=>'success','msg'=>'Mail sent']);
+        }catch(\Exception $e){
+            return response()->json(['status'=>'fail','msg'=> $e->getMessage()]);
         }
-
-        $visitor->status = "check_in";
-
-        $visitor->save();
-
-        return response()->json(['status'=>'success','msg'=>'Mail sent']);
 
     } 
 
