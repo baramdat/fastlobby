@@ -1123,7 +1123,7 @@ class AppointmentController extends Controller
 
                             $site = Site::where('id', $client->site->id)->first();
                             $siteName = $site->name;
-                            $receiverNumber = $request->phone;
+                            $receiverNumber = $ap->phone;
                             $url = route('detail',['id'=>$visitor_id]);
                             $message = 'You have been invited to visit ' . $siteName . ' please click this link and check the invitation details link is:' . $url . '';
 

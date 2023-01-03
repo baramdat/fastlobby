@@ -418,9 +418,9 @@
 
                         toastr.success('Success', response["msg"])
 
-                        $('.decision').hide();
+                        // $('.decision').hide();
 
-                        $('.resultDiv').show();
+                        // $('.resultDiv').show();
 
                     }
 
