@@ -78,9 +78,9 @@ class userController extends Controller
                 });
 
                 //twillo sms
-                $account_sid = 'ACbe9332f45de09e658c04c6c08eb989e3';
-                $auth_token = '4a456542ab17fafb6bd146ad7d93ce1e';
-                $twilio_number = '+18152408707';
+                $account_sid = config('services.twilio.sid');
+                $auth_token = config('services.twilio.token');
+                $twilio_number = config('services.twilio.phone');
                 $receiverNumber = $request->phone;
                 $message = 'Your temporary log in credentials have been created.Please visit ' . env('APP_URL') . ' and use the email you entered with the temporary password: ' . $pin . '.';
                 $client = new Client($account_sid, $auth_token);
