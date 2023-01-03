@@ -39,6 +39,18 @@ Add Appointment
                             <input type="text" class="form-control" id="name" name="name" placeholder="John Doe.." required>
                             <input type="hidden" class="form-control" id="site_id" name="site_id" value="{{$site->id}}">
                         </div>
+
+                        <div class="form-group col-lg-12 col-md-12 col-sm-12">
+                            <label class="form-label mb-0">Your Email: <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="john@fastlobby.com" required>
+                        </div>
+
+
+                        <div class="form-group col-lg-12 col-md-12 col-sm-12">
+                            <label class="form-label mb-0">Your Phone: <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control telephone_number" id="phone" name="phone" placeholder="+1__-___-___" required>
+                        </div>
+
                         <?php $tenants = \App\Models\User::where('site_id', $site->id)->get(); ?>
                         <div class="form-group col-lg-12 col-sm-12">
                             <label class="form-label mb-0">Select Tenant: <span class="text-danger">*</span></label>
@@ -114,6 +126,7 @@ Add Appointment
 </script>
 <script>
     $(document).ready(function(e) {
+        $('.telephone_number').mask('+1999-999-9999');
         // add forms
         $("#add_form").on('submit', (function(e) {
 
