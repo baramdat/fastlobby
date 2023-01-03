@@ -16,4 +16,5 @@ yarn-error.log
 /node.fastlobby.com/_node_modules
 /node.fastlobby.com/node_modules
 /storage
+/storage/framework
 # /storage
