@@ -762,7 +762,9 @@ class AppointmentController extends Controller
 
             });
 
+            $visitor->status = "check_in";
 
+            $visitor->save();
 
             //twillo sms
             $account_sid = config('services.twilio.sid');
@@ -793,9 +795,7 @@ class AppointmentController extends Controller
 
             }
 
-            $visitor->status = "check_in";
-
-            $visitor->save();
+            
 
             return response()->json(['status'=>'success','msg'=>'Mail sent']);
         }catch(\Exception $e){
