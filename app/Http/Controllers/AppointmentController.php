@@ -1081,76 +1081,72 @@ class AppointmentController extends Controller
 
                     $app_walkin->save();
 
-                    $today = Carbon::now();
-                    $app = new Appointment();
-                    $app->name = $app_walkin->name;
-                    $app->email = $app_walkin->email;
-                    $app->phone = $app_walkin->phone;
-                    $app->date = $today;
-                    $app->time = '08-09 am';
-                    $app->tenant_id = Auth::user()->id;
-                    $app->site_id = auth()->user()->site_id;
-                    $app->unique_code = $this->generateUniqueCode();
-                    $app->created_at = $today;
-                    $app->save();
+                    if($request->status == "approve"){
 
-                    if ($app) {
-                        $ap = Appointment::find($app->id);
-                        $link =  $ap->unique_code;
+                        $today = Carbon::now();
+                        $app = new Appointment();
+                        $app->name = $app_walkin->name;
+                        $app->email = $app_walkin->email;
+                        $app->phone = $app_walkin->phone;
+                        $app->date = $today;
+                        $app->time = '08-09 am';
+                        $app->tenant_id = Auth::user()->id;
+                        $app->site_id = auth()->user()->site_id;
+                        $app->unique_code = $this->generateUniqueCode();
+                        $app->created_at = $today;
+                        $app->save();
 
-                        $client = User::find($ap->tenant_id);
-                        $visitor_id = $ap->unique_code;
-                        $site = $client->site->name;
+                        if ($app) {
+                            $ap = Appointment::find($app->id);
+                            $link =  $ap->unique_code;
 
-                        QrCode::format('png')->size(200)->generate($link, 'images/codes/' . $ap->unique_code . '.png');
-                        $img_url = ('images/codes/' . $ap->unique_code . '.png');
+                            $client = User::find($ap->tenant_id);
+                            $visitor_id = $ap->unique_code;
+                            $site = $client->site->name;
 
-                        DB::table('appointments')->where('id', $ap->id)->update(["qr_code" => $img_url]);
-                        
-                        $data = [];
-                        $data["visitor_name"] = $ap->name;
-                        $data["site"] = $site;
-                        $data["image_url"] = asset($ap->qr_code); 
-                        $data["id"] = $visitor_id;
-                        Mail::to($ap->email)->send(new visitorConfirmation($data));
+                            QrCode::format('png')->size(200)->generate($link, 'images/codes/' . $ap->unique_code . '.png');
+                            $img_url = ('images/codes/' . $ap->unique_code . '.png');
 
-                        //twillo sms
-                        $account_sid = config('services.twilio.sid');
-                        $auth_token = config('services.twilio.token');
-                        $twilio_number = config('services.twilio.phone');
+                            DB::table('appointments')->where('id', $ap->id)->update(["qr_code" => $img_url]);
+                            
+                            $data = [];
+                            $data["visitor_name"] = $ap->name;
+                            $data["site"] = $site;
+                            $data["image_url"] = asset($ap->qr_code); 
+                            $data["id"] = $visitor_id;
+                            Mail::to($ap->email)->send(new visitorConfirmation($data));
 
-                        $site = Site::where('id', $client->site->id)->first();
-                        $siteName = $site->name;
-                        $receiverNumber = $request->phone;
-                        $url = route('detail',['id'=>$visitor_id]);
-                        $message = 'You have been invited to visit ' . $siteName . ' please click this link and check the invitation details link is:' . $url . '';
+                            //twillo sms
+                            $account_sid = config('services.twilio.sid');
+                            $auth_token = config('services.twilio.token');
+                            $twilio_number = config('services.twilio.phone');
 
-                        $client = new Client($account_sid, $auth_token);
-                        $client->messages->create($receiverNumber, [
-                            'from' => $twilio_number,
-                            'body' => $message
-                        ]);
+                            $site = Site::where('id', $client->site->id)->first();
+                            $siteName = $site->name;
+                            $receiverNumber = $request->phone;
+                            $url = route('detail',['id'=>$visitor_id]);
+                            $message = 'You have been invited to visit ' . $siteName . ' please click this link and check the invitation details link is:' . $url . '';
 
-
-                        // Mail::send('templates.email.visitor_register_invitation', ['client'=>$client,'visitor'=>$ap,'visitorId'=>$visitor_id], function ($message) use ($ap) {
-                        //     $message->to($ap->email);
-                        //     $message->subject('Visiting Invitation');
-                        //     $message->from(env('MAIL_FROM_ADDRESS'), 'VM-Platform');
-                        // });
+                            $client = new Client($account_sid, $auth_token);
+                            $client->messages->create($receiverNumber, [
+                                'from' => $twilio_number,
+                                'body' => $message
+                            ]);
 
 
-                        return response()->json(['status' => 'success', 'msg' => 'Appointment added successfully']);
-                    } else {
+                            return response()->json(['status' => 'success', 'msg' => 'Appointment added successfully']);
+                        } else {
 
-                        return response()->json(['status' => 'fail', 'msg' => 'Failed to add appointment']);
-                    }
+                            return response()->json(['status' => 'fail', 'msg' => 'Failed to create & approve appointment']);
+                        }
 
-                    return response()->json(['status'=>'success','msg'=>'Appointment request updated']);
+                        return response()->json(['status'=>'success','msg'=>'Appointment request approved']);
+                    }else{
+                        return response()->json(['status'=>'success','msg'=>'Appointment request declined']);
+                    }                  
 
                 }else{
-
                     return response()->json(['status'=>'fail','msg'=>'Appointment not found!']);
-
                 }
 
             }catch(Exception $e){
