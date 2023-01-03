@@ -98,9 +98,10 @@ class AppointmentController extends Controller
                 Mail::to($ap->email)->send(new visitorConfirmation($data));
 
                 //twillo sms
-                $account_sid = 'ACbe9332f45de09e658c04c6c08eb989e3';
-                $auth_token = '4a456542ab17fafb6bd146ad7d93ce1e';
-                $twilio_number = '+18152408707';
+                $account_sid = config('services.twilio.sid');
+                $auth_token = config('services.twilio.token');
+                $twilio_number = config('services.twilio.phone');
+
                 $site = Site::where('id', $client->site->id)->first();
                 $siteName = $site->name;
                 $receiverNumber = $request->phone;
@@ -206,46 +207,34 @@ class AppointmentController extends Controller
 
                     $data["id"] = $ap->id;
 
-                    Mail::to($user->email)->send(new externalVisitor($data));                    
+                    Mail::to($user->email)->send(new externalVisitor($data)); 
+                    
 
                 }
 
-                // //twillo sms
+                if(isset($user->phone)){
+                    
+                    //twillo sms
+                    $account_sid = config('services.twilio.sid');
+                    $auth_token = config('services.twilio.token');
+                    $twilio_number = config('services.twilio.phone');
 
-                // $account_sid = 'ACbe9332f45de09e658c04c6c08eb989e3';
+                    $siteName = $client->site->name;
+                    $receiverNumber = $user->phone;
+                    $url = env('APP_URL').'/external/visitor/detail/'.$app->id;
+                    $message =  "You have a new visitor ".$ap->name." arrived at the door of site ".$siteName.". Please click link to approve or decline the appointment. ".$url;
 
-                // $auth_token = '831ddaf868f19b9ecdcb5a6234c4759f';
+                    $client = new Client($account_sid, $auth_token);
+                    $client->messages->create($receiverNumber, [
+                        'from' => $twilio_number,
+                        'body' => $message
+                    ]);                    
+                }
 
-                // $twilio_number = '+18152408707';
-
-                // $site = Site::where('id', $client->site->id)->first();
-
-                // $siteName = $site->name;
-
-                // $receiverNumber = $request->phone;
-
-
-
-                // $client = new Client($account_sid, $auth_token);
-
-                // $client->messages->create($receiverNumber, [
-
-                //     'from' => $twilio_number,
-
-                // ]);
-
-
-
-
-
+                
                 return response()->json(['status' => 'success', 'msg' => 'Appointment request has been sent']);
-
             } else {
-
-
-
                 return response()->json(['status' => 'fail', 'msg' => 'Failed to request an appointment']);
-
             }
 
         } catch (Exception $e) {
@@ -504,7 +493,7 @@ class AppointmentController extends Controller
             $unique = substr($code, 0, 2);
             if ($unique = 'ST') {
                 $site  = Site::where('unique_code', $unique)->first();
-                $url = env('APP_URL') . 'external/new/appointment/' . $site->unique_code;
+                $url = env('APP_URL') . '/external/new/appointment/' . $site->unique_code;
                 return response()->json(['status' => 'success', 'url' => $url]);
             }
         } catch (Exception $e) {
@@ -774,9 +763,9 @@ class AppointmentController extends Controller
 
 
         //twillo sms
-            $account_sid = 'ACbe9332f45de09e658c04c6c08eb989e3';
-            $auth_token = '4a456542ab17fafb6bd146ad7d93ce1e';
-            $twilio_number = '+18152408707';
+        $account_sid = config('services.twilio.sid');
+        $auth_token = config('services.twilio.token');
+        $twilio_number = config('services.twilio.phone');
 
 
 
@@ -1084,13 +1073,77 @@ class AppointmentController extends Controller
 
             try{
 
-                $app = WalkinAppointment::where('id',$request->id)->first();
+                $app_walkin = WalkinAppointment::where('id',$request->id)->first();
 
-                if($app){
+                if($app_walkin){
 
-                    $app->status = $request->status;
+                    $app_walkin->status = $request->status;
 
+                    $app_walkin->save();
+
+                    $today = Carbon::now();
+                    $app = new Appointment();
+                    $app->name = $app_walkin->name;
+                    $app->email = $app_walkin->email;
+                    $app->phone = $app_walkin->phone;
+                    $app->date = $today;
+                    $app->time = '08-09 am';
+                    $app->tenant_id = Auth::user()->id;
+                    $app->site_id = auth()->user()->site_id;
+                    $app->unique_code = $this->generateUniqueCode();
+                    $app->created_at = $today;
                     $app->save();
+
+                    if ($app) {
+                        $ap = Appointment::find($app->id);
+                        $link =  $ap->unique_code;
+
+                        $client = User::find($ap->tenant_id);
+                        $visitor_id = $ap->unique_code;
+                        $site = $client->site->name;
+
+                        QrCode::format('png')->size(200)->generate($link, 'images/codes/' . $ap->unique_code . '.png');
+                        $img_url = ('images/codes/' . $ap->unique_code . '.png');
+
+                        DB::table('appointments')->where('id', $ap->id)->update(["qr_code" => $img_url]);
+                        
+                        $data = [];
+                        $data["visitor_name"] = $ap->name;
+                        $data["site"] = $site;
+                        $data["image_url"] = asset($ap->qr_code); 
+                        $data["id"] = $visitor_id;
+                        Mail::to($ap->email)->send(new visitorConfirmation($data));
+
+                        //twillo sms
+                        $account_sid = config('services.twilio.sid');
+                        $auth_token = config('services.twilio.token');
+                        $twilio_number = config('services.twilio.phone');
+
+                        $site = Site::where('id', $client->site->id)->first();
+                        $siteName = $site->name;
+                        $receiverNumber = $request->phone;
+                        $url = route('detail',['id'=>$visitor_id]);
+                        $message = 'You have been invited to visit ' . $siteName . ' please click this link and check the invitation details link is:' . $url . '';
+
+                        $client = new Client($account_sid, $auth_token);
+                        $client->messages->create($receiverNumber, [
+                            'from' => $twilio_number,
+                            'body' => $message
+                        ]);
+
+
+                        // Mail::send('templates.email.visitor_register_invitation', ['client'=>$client,'visitor'=>$ap,'visitorId'=>$visitor_id], function ($message) use ($ap) {
+                        //     $message->to($ap->email);
+                        //     $message->subject('Visiting Invitation');
+                        //     $message->from(env('MAIL_FROM_ADDRESS'), 'VM-Platform');
+                        // });
+
+
+                        return response()->json(['status' => 'success', 'msg' => 'Appointment added successfully']);
+                    } else {
+
+                        return response()->json(['status' => 'fail', 'msg' => 'Failed to add appointment']);
+                    }
 
                     return response()->json(['status'=>'success','msg'=>'Appointment request updated']);
 
