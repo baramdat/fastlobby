@@ -213,9 +213,11 @@
                         $(".btnInform").text('Informed');
                     },
                     success: function(response) {
-                        console.log(response)
                         if (response["status"] == "fail") {
-
+                            toastr.error(response.msg)
+                            $("#btnElm").removeClass('design')
+                            $("#counter-sec").css('display', 'block')
+                            c();
                         } else if (response["status"] == "success") {
 
                             $("#btnElm").removeClass('design')
