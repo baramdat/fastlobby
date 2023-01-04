@@ -29,10 +29,17 @@
     <script src="{{asset('assets/js/howler.js')}}"></script>
     <script src="{{asset('assets/js/jquery-visibility.js')}}"></script>
     <script>
-        console.log("{{Request::is('room/join/*')}}")
+
+        
         var title = '';
         title = $(document).attr('title');
         $(document).ready(function() {
+            var is_chat_room = "{{Request::is('room/join/*')}}"
+            var room_id = '';
+            if(is_chat_room == 1){
+                var room_id = "{{ collect(request()->segments())->last() }}"
+            }
+            console.log(room_id,"{{Request::is('room/join/*')}}")
             var sound = new Howl({
                 src: ['/assets/ring/ring.mp3']
             });
