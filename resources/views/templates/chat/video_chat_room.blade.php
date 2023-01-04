@@ -130,8 +130,8 @@ Chat
     });
 
     var room = {}
-    var room_arr = JSON.parse('{{json_encode($room)}}')
-    console.log(room_arr)
+    // var room_arr = JSON.parse('{{json_encode($room)}}')
+    // console.log(room_arr)
     Twilio.Video.createLocalTracks({
         audio: true,
         video: {
@@ -346,12 +346,12 @@ Chat
 
     function updateUserRoomStatus(status){
         var auth_user_id = "{{Auth::id()}}"
-        var user_id = auth_user_id == room_arr.user_one ? room_arr.user_two : room_arr.user_one
+        // var user_id = auth_user_id == room_arr.user_one ? room_arr.user_two : room_arr.user_one
         $.ajax({
             url: 'api/video/chat/room/user/status',
             type: "post",
             dataType: "JSON",
-            data: {user_id: auth_user_id,status:status,room: room_arr.name},
+            data: {user_id: auth_user_id,status:status,room: '{{$roomName}}'},
             beforeSend: function() {},
             complete: function() {},
             success: function(response) {
