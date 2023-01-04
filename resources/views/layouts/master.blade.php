@@ -109,7 +109,7 @@
                             if (response["unread"] > 0) {
                                 //$(".unread").html(response["unread"])
                                 $('.video_unread').css('display', 'block');
-                                $('#IncomingVideoCall').modal('show');
+                                // $('#IncomingVideoCall').modal('show');
                                 // if(!sound.playing()){
                                 //     console.log('not playing')
                                 //     sound.play();
@@ -158,7 +158,7 @@
                             if (response["unread"] > 0) {
                                 //$(".unread").html(response["unread"])
                                 $('.video_unread').css('display', 'block');
-                                $('#IncomingVideoCall').modal('show');
+                                // $('#IncomingVideoCall').modal('show');
                                 $(document).attr("title", "Incoming video call");
                                 // sound.play();
                             } else {
@@ -178,7 +178,7 @@
                             $(".video_messages-body").prepend(response["messages"]);
                             $(".modal-body").html(response["messages"]);
                             $("#videoDecline").attr("data-id", response['notificationId']);
-                            console.log('id :' + response['notificationId'])
+                            // console.log('id :' + response['notificationId'])
                             setTimeout(inactiveVideoMessageNotification, 5000);
                         }
                     },
