@@ -244,7 +244,7 @@ Chat
                         } else if (response["status"] == "success") {
                             console.log('disconnected');
                             $('#remote-media-div').html('');
-                            location.replace('https://www.fastlobby.com/video/chat/compose');
+                            // location.replace('https://www.fastlobby.com/video/chat/compose');
                         }
                     }
                 });
@@ -326,7 +326,7 @@ Chat
         console.log('Participant "%s" disconnected', participant.identity);
         updateUserRoomStatus('left')
         $('#remote-media-div').html('');
-        location.replace('https://www.fastlobby.com/video/chat/compose');
+        // location.replace('https://www.fastlobby.com/video/chat/compose');
     }
 
 
