@@ -248,7 +248,7 @@
                     $('#count').text(n);
                     $("#btnElm").addClass('design');
                     $("#counter-sec").css('display', 'none');
-                    window.location.href = "{{url('qr-scan')}}";
+                    // window.location.href = "{{url('qr-scan')}}";
                 }
             }, 1000);
         }
