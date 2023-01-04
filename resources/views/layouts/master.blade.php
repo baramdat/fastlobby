@@ -110,10 +110,10 @@
                                 //$(".unread").html(response["unread"])
                                 $('.video_unread').css('display', 'block');
                                 $('#IncomingVideoCall').modal('show');
-                                if(!sound.playing()){
-                                    console.log('not playing')
-                                    sound.play();
-                                }                                
+                                // if(!sound.playing()){
+                                //     console.log('not playing')
+                                //     sound.play();
+                                // }                                
                             } else {
                                 //$(".unread").html("");
                                 $(".video_unread").css('display', 'none');
