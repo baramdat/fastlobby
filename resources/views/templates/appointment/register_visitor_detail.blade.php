@@ -158,6 +158,7 @@
                                     @else
                                         <div class="text-center">
                                             <p><strong class="text-danger"> This appointment has already been checked!</strong></p>
+                                            
                                             <a href="{{url()->previous()}}" class="btn btn-success mt-2">
                                                 Go Back
                                             </a>
@@ -192,9 +193,9 @@
     <script>
         var is_auth = "{{!is_null(Auth::user()) ? 1 : 0}}"
         var is_guard = "{{!is_null(Auth::user()) && Auth::user()->hasRole('Guard') ? 1 : 0}}"
-        console.log('before',is_auth,is_guard)
-        if(is_auth == 1  && is_guard == 1){
-            console.log(is_auth,is_guard)
+        var is_pending = "{{isset($app->status) && $app->status == 'pending' ? 1 : 0}}"
+
+        if(is_auth == 1  && is_guard == 1 && is_pending == 1){
             informClient();
         }
 
@@ -251,7 +252,7 @@
                     $('#count').text(n);
                     $("#btnElm").addClass('design');
                     $("#counter-sec").css('display', 'none');
-                    window.location.href = "{{url('qr-scan')}}";
+                    window.location.href = "{{url()->previous()}}";
                 }
             }, 1000);
         }
