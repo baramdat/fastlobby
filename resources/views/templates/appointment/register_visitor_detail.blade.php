@@ -158,10 +158,11 @@
                                     @else
                                         <div class="text-center">
                                             <p><strong class="text-danger"> This appointment has already been checked!</strong></p>
-                                            
+                                            @if(url()->current() != url()->previous())
                                             <a href="{{url()->previous()}}" class="btn btn-success mt-2">
                                                 Go Back
                                             </a>
+                                            @endif
                                         </div>
                                     @endif
                                 </div>
