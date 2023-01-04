@@ -192,7 +192,7 @@
     <script>
         var is_auth = "{{!is_null(Auth::user()) ? 'true' : 'false'}}"
         var is_guard = "{{!is_null(Auth::user()) && Auth::user()->hasRole('Guard') ? 'true' : 'false'}}"
-        
+        console.log(is_auth,is_guard)
         if(is_auth && is_guard){
             informClient();
         }
