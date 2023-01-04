@@ -248,7 +248,7 @@ Chat
                         }
                     }
                 });
-
+                updateUserRoomStatus('left')
 
             }
             room.on('disconnected', room => {
