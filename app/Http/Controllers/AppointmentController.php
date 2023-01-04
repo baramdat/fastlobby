@@ -1420,6 +1420,7 @@ class AppointmentController extends Controller
                 $appointment  = Appointment::where('unique_code', $code)->first();
                 if ($appointment->site_id == $site_id) {
                     $url = env('APP_URL') . '/appointment/detail/' . $appointment->unique_code;
+                    $url = isset($request->is_external) ? $url.'?external=1' : $url;
                     return response()->json(['status' => 'success', 'url' => $url]);
                 } else {
                     return response()->json(['status' => 'fail', 'msg' => 'Invitation is not for this site!']);
