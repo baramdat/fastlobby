@@ -190,10 +190,10 @@
 
     @include('includes.script')
     <script>
-        var is_auth = "{{!is_null(Auth::user()) ? 'true' : 'false'}}"
-        var is_guard = "{{!is_null(Auth::user()) && Auth::user()->hasRole('Guard') ? 'true' : 'false'}}"
-        
-        if(is_auth && is_guard){
+        var is_auth = "{{!is_null(Auth::user()) ? 1 : 0}}"
+        var is_guard = "{{!is_null(Auth::user()) && Auth::user()->hasRole('Guard') ? 1 : 0}}"
+        console.log('before',is_auth,is_guard)
+        if(is_auth == 1  && is_guard == 1){
             console.log(is_auth,is_guard)
             informClient();
         }
