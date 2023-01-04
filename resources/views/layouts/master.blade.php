@@ -130,7 +130,7 @@
                             $(".video_messages-body").prepend(response["messages"]);
                             $(".modal-body").html(response["messages"]);
                             $("#videoDecline").attr("data-id", response['notificationId']);
-                            console.log('id :' + response['notificationId'])
+                            // console.log('id :' + response['notificationId'])
                             setTimeout(videoMessageNotification, 5000);
                         }
                     },
@@ -189,7 +189,7 @@
             }
 
             function updateUserRoomStatus(){
-                
+
             }
 
             $(document).on('click', '#videoDecline', function() {

@@ -348,7 +348,7 @@ Chat
         var auth_user_id = "{{Auth::id()}}"
         // var user_id = auth_user_id == room_arr.user_one ? room_arr.user_two : room_arr.user_one
         $.ajax({
-            url: 'api/video/chat/room/user/status',
+            url: './api/video/chat/room/user/status',
             type: "post",
             dataType: "JSON",
             data: {user_id: auth_user_id,status:status,room: '{{$roomName}}'},
