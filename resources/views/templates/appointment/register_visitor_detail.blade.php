@@ -190,7 +190,10 @@
 
     @include('includes.script')
     <script>
-        informClient();
+        var is_auth = "{{isset(Auth::user()) ? true : false}}"
+        var is_guard = "{{isset(Auth::user()) && Auth::user()->hasRole('Guard') ? true : false}}"
+        console.log(is_auth,is_guard)
+        // informClient();
 
         function informClient() {
          var id = $('#app_id').val();
