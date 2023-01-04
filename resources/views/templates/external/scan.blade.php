@@ -96,6 +96,7 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
             $.ajax({
             type: "get",
             url: "/api/get/appointment/details/"+lastResult,
+            data: {site_id:'{{$site->id}}',is_external: 1},
             dataType: "JSON",
             success: function(response) {
                 if (response["status"] == "fail") {

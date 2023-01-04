@@ -1401,15 +1401,24 @@ class AppointmentController extends Controller
 
 
      // appointment get through unique code
-    public function AppointmentDetailThroughCode($id)
+    public function AppointmentDetailThroughCode(Request $request,$id)
     {
         try {
             $code = $id;
             $unique = substr($code, 0, 2);
            if ($unique = 'AP') {
-                $user = Auth::user();
+                $site_id = 0;
+                if(isset($request->is_external) && isset($request->site_id)){
+                    $site_id = $request->site_id;
+                }else {
+                    if(!is_null(Auth::user())){
+                        $user = Auth::user();
+                        $site_id = $user->site_id;
+                    }
+                }
+                
                 $appointment  = Appointment::where('unique_code', $code)->first();
-                if ($appointment->site_id == $user->site_id) {
+                if ($appointment->site_id == $site_id) {
                     $url = env('APP_URL') . '/appointment/detail/' . $appointment->unique_code;
                     return response()->json(['status' => 'success', 'url' => $url]);
                 } else {
