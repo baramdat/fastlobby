@@ -29,6 +29,7 @@
     <script src="{{asset('assets/js/howler.js')}}"></script>
     <script src="{{asset('assets/js/jquery-visibility.js')}}"></script>
     <script>
+        console.log("Request::is('room/join/*')")
         var title = '';
         title = $(document).attr('title');
         $(document).ready(function() {
@@ -95,7 +96,6 @@
                     },
                     complete: function() {},
                     success: function(response) {
-                        console.log(response)
                         if (response["status"] == "fail") {
                             $(".video_message-head").html(response["head"])
                         } else if (response["status"] == "success") {
@@ -104,6 +104,7 @@
                                 $('.video_unread').css('display', 'block');
                                 $('#IncomingVideoCall').modal('show');
                                 if(!sound.playing()){
+                                    console.log('not playing')
                                     sound.play();
                                 }                                
                             } else {

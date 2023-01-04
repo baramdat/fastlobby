@@ -95,7 +95,6 @@
                     },
                     complete: function() {},
                     success: function(response) {
-                        console.log(response)
                         if (response["status"] == "fail") {
                             $(".video_message-head").html(response["head"])
                         } else if (response["status"] == "success") {
@@ -103,7 +102,10 @@
                                 //$(".unread").html(response["unread"])
                                 $('.video_unread').css('display', 'block');
                                 $('#IncomingVideoCall').modal('show');
-                                sound.play();
+                                if(!sound.playing()){
+                                    console.log('not playing')
+                                    sound.play();
+                                }                                
                             } else {
                                 //$(".unread").html("");
                                 $(".video_unread").css('display', 'none');
