@@ -99,7 +99,7 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
             dataType: "JSON",
             success: function(response) {
                 if (response["status"] == "fail") {
-                    alert('something went wrong!');
+                    toastr.error('Error',response.msg)
                 } else if (response["status"] == "success") {
                     window.location.href = response["url"];
                 }
