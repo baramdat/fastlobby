@@ -160,7 +160,7 @@
                                 $('.video_unread').css('display', 'block');
                                 $('#IncomingVideoCall').modal('show');
                                 $(document).attr("title", "Incoming video call");
-                                sound.play();
+                                // sound.play();
                             } else {
                                 //$(".unread").html("");
                                 $(".video_unread").css('display', 'none');
