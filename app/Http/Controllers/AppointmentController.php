@@ -1410,7 +1410,7 @@ class AppointmentController extends Controller
                 $user = Auth::user();
                 $appointment  = Appointment::where('unique_code', $code)->first();
                 if ($appointment->site_id == $user->site_id) {
-                    $url = env('APP_URL') . '/appointment/handling/' . $appointment->unique_code;
+                    $url = env('APP_URL') . '/appointment/detail/' . $appointment->unique_code;
                     return response()->json(['status' => 'success', 'url' => $url]);
                 } else {
                     return response()->json(['status' => 'fail', 'msg' => 'Invitation is not for this site!']);

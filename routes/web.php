@@ -114,13 +114,12 @@ Route::group(['middleware' => ['web']], function () {
     // Appointment
     Route::view('/appointment/list', 'templates.appointment.list')->name('list')->middleware('Tenant');
     Route::view('/appointment/add', 'templates.appointment.add')->name('add')->middleware('Tenant');
-    Route::get('appointment/detail/{id}', [AppointmentController::class, 'detail'])->name('detail');
     // tenant routes for employees
     Route::get('/tenant/user/add', [tenantEmployeeController::class, 'viewAdd'])->middleware('Tenant');
     Route::view('/tenant/user/list', 'templates.tenant.employee.list')->middleware('Tenant');
     Route::get('/tenant/user/edit/{id}', [tenantEmployeeController::class, 'editUser'])->middleware('Tenant');
     Route::get('/tenant/user/detail/{id}', [tenantEmployeeController::class, 'userDetail'])->middleware('Tenant');
-        Route::get('appointment/detail/page/{id}', [AppointmentController::class, 'detailPage'])->name('detailPage');
+    Route::get('appointment/detail/page/{id}', [AppointmentController::class, 'detailPage'])->name('detailPage');
 
     Route::get('appointment/handling/{id}', [AppointmentController::class, 'AppointmentHandling'])->name('appointment/handling')->middleware('isLogin');
     Route::get('/walk-in-visitors/detail/{id}', [AppointmentController::class, 'walikInVisitorDetails'])->name('walk-in-visitors/detail')->middleware('isLogin');
@@ -231,4 +230,7 @@ Route::get('/stream', function () {
 Route::get('/dumi', function () {
     return view('templates.users.dumi_user');
 });
+
+
+Route::get('appointment/detail/{id}', [AppointmentController::class, 'detail'])->name('detail');
 

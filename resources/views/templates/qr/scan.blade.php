@@ -56,7 +56,7 @@ Scan Qrcode
                     success: function(response) {
                         console.log(response)
                     if (response["status"] == "fail") {
-                    toastr.error('Failed', response["msg"]);
+                            toastr.error('Failed', response["msg"]);
                         } else if (response["status"] == "success") {
                             window.location.href = response["url"];
                         }
