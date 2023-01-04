@@ -196,10 +196,14 @@
         var is_auth = "{{!is_null(Auth::user()) ? 1 : 0}}"
         var is_guard = "{{!is_null(Auth::user()) && Auth::user()->hasRole('Guard') ? 1 : 0}}"
         var is_pending = "{{isset($app->status) && $app->status == 'pending' ? 1 : 0}}"
+        var is_external = "{{ Request::get('external') }}"
 
-        if(is_auth == 1  && is_guard == 1 && is_pending == 1){
-            informClient();
+        if(is_pending == 1){
+            if((is_auth == 1  && is_guard == 1) || is_external == 1){
+                informClient();
+            }
         }
+        
 
         function informClient() {
          var id = $('#app_id').val();
