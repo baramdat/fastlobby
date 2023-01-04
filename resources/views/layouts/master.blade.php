@@ -29,7 +29,7 @@
     <script src="{{asset('assets/js/howler.js')}}"></script>
     <script src="{{asset('assets/js/jquery-visibility.js')}}"></script>
     <script>
-        console.log("Request::is('room/join/*')")
+        console.log("{{Request::is('room/join/*')}}")
         var title = '';
         title = $(document).attr('title');
         $(document).ready(function() {
