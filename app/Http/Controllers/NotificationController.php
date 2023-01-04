@@ -62,6 +62,7 @@ class NotificationController extends Controller
             $userNotifications = array();
             $url = "";
             $unread = 0;
+            $notificationId = '';
             $head = '<h5 class="m-0">(' . $unread . ') New Notifications</h5>';
             $notificationss = $user->notifications->where('type', 'App\Notifications\videoChatNotification')
                 ->all();
@@ -98,10 +99,10 @@ class NotificationController extends Controller
                         $countHead = '<span class="alert-count unreadCount">' . $unread . '</span>
                                 <i class="bx bx-bell"></i>';
                     } 
-                    // else {
-                    //     $url = " ";
-                    //     $notificationId = " ";
-                    // }
+                    else {
+                        $url = " ";
+                        $notificationId = " ";
+                    }
                 }
                 return response()->json(['status' => 'success', 'unread' => $unread, 'url' => $url, 'notificationId' => $notificationId,  'messages' => $message, 'head' => $head]);
             }else{
