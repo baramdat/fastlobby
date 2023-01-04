@@ -1036,6 +1036,9 @@ use \App\Http\Controllers\PickupController;
                 });
         });
 
+        // updateUserRoomStatus()
+        
+
     });
 </script>
 @endsection

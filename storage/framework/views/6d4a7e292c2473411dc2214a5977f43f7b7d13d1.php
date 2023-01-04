@@ -29,9 +29,17 @@
     <script src="<?php echo e(asset('assets/js/howler.js')); ?>"></script>
     <script src="<?php echo e(asset('assets/js/jquery-visibility.js')); ?>"></script>
     <script>
+
+        
         var title = '';
         title = $(document).attr('title');
         $(document).ready(function() {
+            var is_chat_room = "<?php echo e(Request::is('room/join/*')); ?>"
+            var room_id = '';
+            if(is_chat_room == 1){
+                var room_id = "<?php echo e(collect(request()->segments())->last()); ?>"
+            }
+            console.log(room_id,"<?php echo e(Request::is('room/join/*')); ?>")
             var sound = new Howl({
                 src: ['/assets/ring/ring.mp3']
             });
@@ -102,10 +110,10 @@
                                 //$(".unread").html(response["unread"])
                                 $('.video_unread').css('display', 'block');
                                 $('#IncomingVideoCall').modal('show');
-                                if(!sound.playing()){
-                                    console.log('not playing')
-                                    sound.play();
-                                }                                
+                                // if(!sound.playing()){
+                                //     console.log('not playing')
+                                //     sound.play();
+                                // }                                
                             } else {
                                 //$(".unread").html("");
                                 $(".video_unread").css('display', 'none');
@@ -152,7 +160,7 @@
                                 $('.video_unread').css('display', 'block');
                                 $('#IncomingVideoCall').modal('show');
                                 $(document).attr("title", "Incoming video call");
-                                sound.play();
+                                // sound.play();
                             } else {
                                 //$(".unread").html("");
                                 $(".video_unread").css('display', 'none');
@@ -178,6 +186,10 @@
                         console.log(error);
                     }
                 });
+            }
+
+            function updateUserRoomStatus(){
+                
             }
 
             $(document).on('click', '#videoDecline', function() {

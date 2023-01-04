@@ -188,6 +188,10 @@
                 });
             }
 
+            function updateUserRoomStatus(){
+                
+            }
+
             $(document).on('click', '#videoDecline', function() {
                 var id = $(this).attr('data-id');
                 $.ajax({

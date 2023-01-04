@@ -311,6 +311,7 @@ Route::get('/video/chat/notifications', [NotificationController::class, 'videoNo
 Route::delete('/notification/delete/{id}', [NotificationController::class, 'notificationDelete']);
 Route::get('/single/notification/read/{id}', [NotificationController::class, 'videoNotificationRead']);
 Route::post('/chat_status/change', [VideoRoomsController::class, 'ChatStatusChange']);
+Route::post('/video/chat/room/user/status', [VideoRoomsController::class, 'updateUserRoomStatus']);
 
 
 //Camera's list

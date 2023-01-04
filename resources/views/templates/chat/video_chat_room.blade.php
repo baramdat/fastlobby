@@ -130,6 +130,8 @@ Chat
     });
 
     var room = {}
+    var room_arr = JSON.parse('{{json_encode($room)}}')
+    console.log(room_arr)
     Twilio.Video.createLocalTracks({
         audio: true,
         video: {
@@ -317,11 +319,12 @@ Chat
         participant.on('trackRemoved', trackRemoved);
 
         document.getElementById('media-div').appendChild(div);
+        updateUserRoomStatus('joined')
     }
 
     function participantDisconnected(participant) {
         console.log('Participant "%s" disconnected', participant.identity);
-
+        updateUserRoomStatus('left')
         $('#remote-media-div').html('');
         location.replace('https://www.fastlobby.com/video/chat/compose');
     }
@@ -339,6 +342,30 @@ Chat
         // track.detach().forEach(function(element) {
         //     element.remove()
         // });
+    }
+
+    function updateUserRoomStatus(status){
+        var auth_user_id = "{{Auth::id()}}"
+        var user_id = auth_user_id == room_arr.user_one ? room_arr.user_two : room_arr.user_one
+        $.ajax({
+            url: 'api/video/chat/room/user/status',
+            type: "post",
+            dataType: "JSON",
+            data: {user_id: auth_user_id,status:status,room: room_arr.name},
+            beforeSend: function() {},
+            complete: function() {},
+            success: function(response) {
+                console.log(response)
+                // if (response["status"] == "success") {
+                //     $("#tenant").html(response['data']);
+                // } else if (response["status"] == "fail") {
+
+                // }
+            },
+            error: function(error) {
+                //console.log(error);
+            }
+        });
     }
 </script>
 

@@ -1038,6 +1038,29 @@ use \App\Http\Controllers\PickupController;
                 });
         });
 
+        updateUserRoomStatus()
+        function updateUserRoomStatus(){
+            $.ajax({
+                url: 'api/video/chat/room/user/status',
+                type: "post",
+                dataType: "JSON",
+                data: {user_id: "<?php echo e(Auth::id()); ?>",status:'joined',room: 'room3193'},
+                beforeSend: function() {},
+                complete: function() {},
+                success: function(response) {
+                    console.log(response)
+                    // if (response["status"] == "success") {
+                    //     $("#tenant").html(response['data']);
+                    // } else if (response["status"] == "fail") {
+
+                    // }
+                },
+                error: function(error) {
+                    //console.log(error);
+                }
+            });
+        }
+
     });
 </script>
 <?php $__env->stopSection(); ?>
