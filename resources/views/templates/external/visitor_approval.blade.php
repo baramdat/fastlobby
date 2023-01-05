@@ -60,6 +60,30 @@
 
                         <div class="row">
 
+                            <div class="col-3"></div>
+
+                            <div class="col-6 text-center decision">
+
+                                <p>Click approve for accept invitation or decline it.</p>
+
+                            <div  class="decision">
+
+                            <a href="javascript:;" class="btn btn-primary btnInform" data-id="{{$visitor->id}}" data="approve"><i class="fa fa-spinner fa-spin fa-approve" style="display:none;"></i> Approve</a>
+
+                                <a href="javascript:;" class="btn btn-danger btnInform" data-id="{{$visitor->id}}" data="decline"><i class="fa fa-spinner fa-spin fa-decline" style="display:none;"></i> Decline</a>
+
+                            </div>
+
+                            </div>
+
+                            <div class="col-6 text-center resultDiv">
+
+                                <p><span class="alert alert-success">Your request is updated!</span></p>
+
+                            </div>
+
+                            <div class="col-3"></div>
+
                             <div class="col-lg-3">
 
                                 <div class="text-center chat-image mb-5">
@@ -306,29 +330,7 @@
 
                             </div>
 
-                            <div class="col-3"></div>
-
-                            <div class="col-6 text-center decision">
-
-                                <p>Click approve for accept invitation or decline it.</p>
-
-                            <div  class="decision">
-
-                            <a href="javascript:;" class="btn btn-primary btnInform" data-id="{{$visitor->id}}" data="approve"><i class="fa fa-spinner fa-spin fa-approve" style="display:none;"></i> Approve</a>
-
-                                <a href="javascript:;" class="btn btn-danger btnInform" data-id="{{$visitor->id}}" data="decline"><i class="fa fa-spinner fa-spin fa-decline" style="display:none;"></i> Decline</a>
-
-                            </div>
-
-                            </div>
-
-                              <div class="col-6 text-center resultDiv">
-
-                                <p><span class="alert alert-success">Your request is updated!</span></p>
-
-                            </div>
-
-                            <div class="col-3"></div>
+                            
 
                         </div>
 

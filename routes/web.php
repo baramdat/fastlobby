@@ -135,14 +135,16 @@ Route::group(['middleware' => ['web']], function () {
     Route::post('/stream-answer', [StreamingController::class, 'makeStreamAnswer'])->middleware('isLogin');
 
 });
-    //external incoming visitor
-    Route::get('/external/scan/{id}', [SiteController::class, 'externalScanPage']);
-    Route::get('external/new/appointment/{id}', [AppointmentController::class, 'externalAppointmentForm']);
-    Route::post('qr/add/', [AppointmentController::class, 'addQr']);
-    Route::get('/external/visitor/detail/{id}', [AppointmentController::class, 'externalVisitorDetailPage'])->middleware('Tenant');
-    Route::view('keyboard/wedge-one','templates.external.keyboard_wedge_one');
-    Route::view('keyboard/wedge-three','templates.external.keyboard_wedge_three');
-    Route::view('keyboard/wedge-two','templates.external.keyboard_wedge_two');
+
+
+//external incoming visitor
+Route::get('/external/scan/{id}', [SiteController::class, 'externalScanPage']);
+Route::get('external/new/appointment/{id}', [AppointmentController::class, 'externalAppointmentForm']);
+Route::post('qr/add/', [AppointmentController::class, 'addQr']);
+Route::get('/external/visitor/detail/{id}', [AppointmentController::class, 'externalVisitorDetailPage']);
+Route::view('keyboard/wedge-one','templates.external.keyboard_wedge_one');
+Route::view('keyboard/wedge-three','templates.external.keyboard_wedge_three');
+Route::view('keyboard/wedge-two','templates.external.keyboard_wedge_two');
 
 
 
