@@ -1091,8 +1091,8 @@ class AppointmentController extends Controller
                         $app->phone = $app_walkin->phone;
                         $app->date = $today;
                         $app->time = '08-09 am';
-                        $app->tenant_id = Auth::user()->id;
-                        $app->site_id = auth()->user()->site_id;
+                        $app->tenant_id = $app_walkin->tenant_id;
+                        $app->site_id = $app_walkin->site_id;
                         $app->unique_code = $this->generateUniqueCode();
                         $app->created_at = $today;
                         $app->save();
