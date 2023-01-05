@@ -66,7 +66,7 @@
 
                                 <p>Click approve for accept invitation or decline it.</p>
 
-                            <div  class="decision">
+                            <div  class="decision mb-4">
 
                             <a href="javascript:;" class="btn btn-primary btnInform" data-id="{{$visitor->id}}" data="approve"><i class="fa fa-spinner fa-spin fa-approve" style="display:none;"></i> Approve</a>
 
