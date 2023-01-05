@@ -121,6 +121,7 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
     var barcode = '';
     var interval;
     document.addEventListener('keydown', function(evt) {
+        console.log('keywod')
         if (interval)
             clearInterval(interval);
         if (evt.code == 'Enter') {
