@@ -21,7 +21,8 @@
         });
         function handleBarcode(scanned_barcode){
       $data = scanned_barcode;
-        document.querySelector('#last-barcode').innerHTML = $data;
+            var data = $data.replace("/", "-");
+        document.querySelector('#last-barcode').innerHTML = data;
         $.ajax({
             type: "get",
             url: "/api/get/appointment/details",

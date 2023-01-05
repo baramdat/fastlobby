@@ -137,11 +137,12 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
     function handleBarcode(scanned_barcode) {
         $data = scanned_barcode;
-        document.querySelector('#last-barcode').innerHTML = $data;
+        var data = $data.replace("/", "-");
+        document.querySelector('#last-barcode').innerHTML = data;
         console.log($data)
          $.ajax({
             type: "get",
-            url: "/api/get/appointment/details/" + $data,
+            url: "/api/get/appointment/details/" + data,
             data: {site_id:'{{$site->id}}',is_external: 1},
             dataType: "JSON",
             success: function(response) {
