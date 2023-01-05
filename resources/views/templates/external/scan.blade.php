@@ -138,8 +138,8 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
     function handleBarcode(scanned_barcode) {
         $data = scanned_barcode;
         var data = $data.replace("/", "-");
-        document.querySelector('#last-barcode').innerHTML = data;
-        console.log($data)
+        // document.querySelector('#last-barcode').innerHTML = data;
+        console.log($data,data)
          $.ajax({
             type: "get",
             url: "/api/get/appointment/details/" + data,
