@@ -59,32 +59,24 @@
                     <div class="card-body">
 
                         <div class="row">
-
-                            <div class="col-3"></div>
-
-                            <div class="col-6 text-center decision">
-
+                            <div class="col-lg-3"></div>
+                            <div class="col-lg-6 text-center decision">
                                 <p>Click approve for accept invitation or decline it.</p>
 
-                            <div  class="decision mb-4">
-
-                            <a href="javascript:;" class="btn btn-primary btnInform" data-id="{{$visitor->id}}" data="approve"><i class="fa fa-spinner fa-spin fa-approve" style="display:none;"></i> Approve</a>
-
-                                <a href="javascript:;" class="btn btn-danger btnInform" data-id="{{$visitor->id}}" data="decline"><i class="fa fa-spinner fa-spin fa-decline" style="display:none;"></i> Decline</a>
-
+                                <div  class="decision mb-4">
+                                    <a href="javascript:;" class="btn btn-primary btnInform" data-id="{{$visitor->id}}" data="approve"><i class="fa fa-spinner fa-spin fa-approve" style="display:none;"></i> Approve</a>
+                                    <a href="javascript:;" class="btn btn-danger btnInform" data-id="{{$visitor->id}}" data="decline"><i class="fa fa-spinner fa-spin fa-decline" style="display:none;"></i> Decline</a>
+                                </div>                                
                             </div>
-
-                            </div>
-
-                            <div class="col-6 text-center resultDiv" style="display: none;">
-
+                            <div class="col-lg-6 text-center resultDiv" style="display: none;">
                                 <p><span class="alert alert-success">Your request is updated!</span></p>
-
                             </div>
+                            <div class="col-lg-3"></div>
+                        </div>
 
-                            <div class="col-3"></div>
+                        <div class="row">
 
-                            <div class="col-lg-3">
+                            <div class="col-lg-4">
 
                                 <div class="text-center chat-image mb-5">
 
@@ -92,11 +84,11 @@
 
                                         @if(isset($client->image) && $client->image !=NULL)
 
-                                        <img id="" src="{{asset('uploads/files/'.$client->image)}}" alt="" class="img-fluid rounded-circle mx-auto">
+                                        <img id="" src="{{asset('uploads/files/'.$client->image)}}" style="width:175px;height:175px;object-fit:cover;" alt="" class="img-fluid rounded-circle mx-auto">
 
                                         @else
 
-                                        <img id="" alt="avatar" src="{{asset('assets/images/users/avatar-121.png')}}" class="brround" style="width:200px !important"></a>
+                                        <img id="" alt="avatar" src="{{asset('assets/images/users/avatar-121.png')}}" style="width:175px;height:175px;object-fit:cover;" class="brround" style="width:200px !important"></a>
 
                                         @endif
 
@@ -114,7 +106,7 @@
 
                                     </div>
 
-                                    <div class="d-flex text-center" style="margin-left:50px;">
+                                    <div class="d-flex mt-4 text-center text-truncate" style="max-witdh:125px;">
 
                                         <div>
 
@@ -168,7 +160,7 @@
 
                             </div>
 
-                            <div class="col-lg-9">
+                            <div class="col-lg-8">
 
                                 <div class="card">
 
@@ -188,7 +180,7 @@
 
                                                     <h4 class="mx-2">
 
-                                                        <strong>{{$visitor->name}}</strong>
+                                                        <strong>{{ucwords($visitor->name)}}</strong>
 
                                                     </h4>
 
