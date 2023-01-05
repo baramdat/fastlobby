@@ -76,7 +76,7 @@
 
                             </div>
 
-                            <div class="col-6 text-center resultDiv">
+                            <div class="col-6 text-center resultDiv" style="display: none;">
 
                                 <p><span class="alert alert-success">Your request is updated!</span></p>
 
