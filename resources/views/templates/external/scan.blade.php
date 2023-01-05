@@ -7,6 +7,48 @@ Scan Qrcode
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 ?>
 @section('content')
+
+<script>
+    var barcode = '';
+    var interval;
+    document.addEventListener('keydown', function(evt) {
+        console.log('keywod')
+        if (interval)
+            clearInterval(interval);
+        if (evt.code == 'Enter') {
+            if (barcode)
+                handleBarcode(barcode);
+            barcode = '';
+            return;
+        }
+
+        if (evt.key != 'Shift')
+            barcode += evt.key;
+        interval = setInterval(() => barcode = '', 20);
+    });
+
+    function handleBarcode(scanned_barcode) {
+        $data = scanned_barcode;
+        var data = $data.replace("/", "-");
+        // document.querySelector('#last-barcode').innerHTML = data;
+        console.log($data,data)
+         $.ajax({
+            type: "get",
+            url: "/api/get/appointment/details/" + data,
+            data: {site_id:'{{$site->id}}',is_external: 1},
+            dataType: "JSON",
+            success: function(response) {
+                console.log(response)
+                if (response["status"] == "fail") {
+                    alert('something went wrong!');
+                } else if (response["status"] == "success") {
+                    window.location.href = response["url"];
+                }
+            }
+        });
+
+    }
+</script>
 <!-- CONTAINER -->
 <div class="container">
     <div class="page-header mb-2">
@@ -117,45 +159,5 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
     });
 </script>
 
-<script>
-    var barcode = '';
-    var interval;
-    document.addEventListener('keydown', function(evt) {
-        console.log('keywod')
-        if (interval)
-            clearInterval(interval);
-        if (evt.code == 'Enter') {
-            if (barcode)
-                handleBarcode(barcode);
-            barcode = '';
-            return;
-        }
 
-        if (evt.key != 'Shift')
-            barcode += evt.key;
-        interval = setInterval(() => barcode = '', 20);
-    });
-
-    function handleBarcode(scanned_barcode) {
-        $data = scanned_barcode;
-        var data = $data.replace("/", "-");
-        // document.querySelector('#last-barcode').innerHTML = data;
-        console.log($data,data)
-         $.ajax({
-            type: "get",
-            url: "/api/get/appointment/details/" + data,
-            data: {site_id:'{{$site->id}}',is_external: 1},
-            dataType: "JSON",
-            success: function(response) {
-                console.log(response)
-                if (response["status"] == "fail") {
-                    alert('something went wrong!');
-                } else if (response["status"] == "success") {
-                    window.location.href = response["url"];
-                }
-            }
-        });
-
-    }
-</script>
 @endsection
