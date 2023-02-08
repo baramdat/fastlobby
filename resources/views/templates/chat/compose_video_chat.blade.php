@@ -52,7 +52,6 @@ Video chat
         $('#roomName').attr('required');
         $(document).on('click', '#btnSubmit', function() {
             var id = $(this).attr('data-id');
-            console.log(id);
             $.ajax({
                 type: "POST",
                 url: "/api/create/specific/room/" + id,
