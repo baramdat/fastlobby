@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\UserNotification;
 use Illuminate\Http\Request;
 use Twilio\Rest\Client;
 use Twilio\Jwt\AccessToken;
@@ -18,6 +19,7 @@ use Illuminate\Support\Str;
 use App\Models\VideoChatRoom;
 use Exception;
 use FFMpeg\Filters\Video\VideoFilters;
+
 
 class VideoRoomsController extends Controller
 {
@@ -240,6 +242,29 @@ class VideoRoomsController extends Controller
                     $notifyable = User::where('id', $id)->first();
                     $sender =  User::where('id', Auth::user()->id)->first();
                     Notification::send($notifyable, new videoChatNotification($sender, $message));
+                    $userNotification = DB::table('notifications')->latest()->first();
+                    $notifications = json_decode($userNotification->data);
+                    $notificationId = $userNotification->id;
+                    if ($notificationId) {
+                        $callurl = '/mark/read/' . $notificationId . '/' . $notifications->id;
+                   } else {
+                    $callurl = '';
+                   }
+                    $VideoNotification = '
+                        <a class="dropdown-item d-flex" href="/mark/read/' . $notificationId . '/' . $notifications->id . '">
+                        <div class="row">
+                            <div class="wd-90p">
+                            <div class="d-flex">
+                                    <h5 class="mb-1">' . $notifications->title . '</h5>
+                                    <small class="text-muted ms-auto text-end">
+                                    ' . date('H:i a', strtotime($userNotification->created_at)) . '
+                                    </small>
+                                </div>
+                                <span>' . substr($notifications->message, 0, 55) . '</span><br>
+                            </div>
+                        </div>
+                        </a>';
+                     event(new UserNotification($VideoNotification, $id,$notificationId,$callurl));
                     $url = env('APP_URL') . '/room/join/' . $roomName;
                     DB::table('users')->where('id', $sender->id)->update(["chat_status" => "busy"]);
                     return response()->json(['status' => 'success', 'room' => $room, 'url' => $url]);

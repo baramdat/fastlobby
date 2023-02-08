@@ -23,3 +23,7 @@ Broadcast::channel('streaming-channel.{streamId}', function ($user) {
 Broadcast::channel('stream-signal-channel.{userId}', function ($user, $userId) {
     return (int)$user->id === (int)$userId;
 });
+Broadcast::channel('private-message.{id}' , function($user , $id){
+    // $id = explode("-",$id);
+    return (int) $user->id === (int) $id;
+});

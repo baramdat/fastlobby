@@ -28,6 +28,7 @@
     </style>
     <script src="{{asset('assets/js/howler.js')}}"></script>
     <script src="{{asset('assets/js/jquery-visibility.js')}}"></script>
+    <script src="{{ asset('js/app.js') }}"></script>
     <script>
 
         
@@ -39,18 +40,42 @@
             if(is_chat_room == 1){
                 var room_id = "{{ collect(request()->segments())->last() }}"
             }
-            console.log(room_id,"{{Request::is('room/join/*')}}")
             var sound = new Howl({
                 src: ['/assets/ring/ring.mp3']
             });
+            let currentUserId = '{{ auth()->user()->id }}';
+            Echo.private(`private-message.${currentUserId}`)
+                .listen('UserNotification', function(response) {
+                    let message = response.message;
+                    let notificationId = response.notificationId;
+                    let url = response.url;
+                    $('.video_unread').css('display', 'block');
+                    $('#IncomingVideoCall').modal('show');
+                    sound.play();
+
+                    // $(".video_message-head").html(response["head"])
+                    // $("#exampleModalLabel").html(response["Upcoming video call"])
+
+                    // $(".video_messages-body").html('')
+                    if (url != '') {
+                        $(".approve").attr("href", url);
+                    }
+                    $(".modal-body").html('')
+                    $(".video_messages-body").prepend(message);
+                    $(".modal-body").html(message);
+                    $("#videoDecline").attr("data-id", notificationId);
+                });
+            $('.approve').on('click', function(e) {
+                sound.stop();
+            })
             // mesageNotification();
-            // videoMessageNotification();
+            videoMessageNotification();
             // inactiveVideoMessageNotification();
 
             $(function() {
                 setInterval(mesageNotification, 5000);
-                setInterval(videoMessageNotification, 5000);
-                setInterval(inactiveVideoMessageNotification, 5000);
+                // setInterval(videoMessageNotification, 5000);
+                // setInterval(inactiveVideoMessageNotification, 5000);
             });
 
             function mesageNotification() {
@@ -98,26 +123,22 @@
                     type: "get",
                     dataType: "JSON",
                     cache: false,
-                    beforeSend: function() {
-
-                    },
+                    beforeSend: function() {},
                     complete: function() {},
                     success: function(response) {
                         if (response["status"] == "fail") {
                             $(".video_message-head").html(response["head"])
                         } else if (response["status"] == "success") {
+
                             if (response["unread"] > 0) {
-                                //$(".unread").html(response["unread"])
+                                $(".unread").html(response["unread"])
                                 $('.video_unread').css('display', 'block');
                                 // $('#IncomingVideoCall').modal('show');
-                                // if(!sound.playing()){
-                                //     console.log('not playing')
-                                //     sound.play();
-                                // }                                
+                                // // sound.play();
                             } else {
-                                //$(".unread").html("");
+                                $(".unread").html("");
                                 $(".video_unread").css('display', 'none');
-                                $('#IncomingVideoCall').modal('hide');
+                                // $('#IncomingVideoCall').modal('hide');
                             }
                             if (response["url"] != '') {
                                 $(".approve").attr("href", response['url']);
@@ -130,8 +151,8 @@
                             $(".video_messages-body").prepend(response["messages"]);
                             $(".modal-body").html(response["messages"]);
                             $("#videoDecline").attr("data-id", response['notificationId']);
-                            // console.log('id :' + response['notificationId'])
-                            setTimeout(videoMessageNotification, 5000);
+                            // console.log('id :' + response['notificationId']);
+                            // // setTimeout(videoMessageNotification, 5000);
                         }
                     },
                     error: function(error) {
@@ -210,6 +231,7 @@
                         $(".modal-body").html('');
                         $(".video_unread").css('display', 'none');
                         sound.stop();
+                        location.reload(true);
                     },
                     error: function(error) {
                         console.log(error);
