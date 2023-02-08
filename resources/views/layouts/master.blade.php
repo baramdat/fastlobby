@@ -52,7 +52,7 @@
                     $('.video_unread').css('display', 'block');
                     $('#IncomingVideoCall').modal('show');
                     sound.play();
-
+                    console.log(message);
                     // $(".video_message-head").html(response["head"])
                     // $("#exampleModalLabel").html(response["Upcoming video call"])
 
@@ -65,15 +65,15 @@
                     $(".modal-body").html(message);
                     $("#videoDecline").attr("data-id", notificationId);
                 });
-            $('.approve').on('click', function(e) {
-                sound.stop();
-            })
+            // $('.approve').on('click', function(e) {
+            //     sound.stop();
+            // })
             // mesageNotification();
             videoMessageNotification();
             // inactiveVideoMessageNotification();
 
             $(function() {
-                setInterval(mesageNotification, 5000);
+                setInterval(mesageNotification, 10000);
                 // setInterval(videoMessageNotification, 5000);
                 // setInterval(inactiveVideoMessageNotification, 5000);
             });
@@ -107,7 +107,7 @@
                             $(".messages-body").html('')
                             $(".messages-body").prepend(response["messages"])
 
-                            setTimeout(mesageNotification, 5000);
+                            setTimeout(mesageNotification, 10000);
                         }
                     },
                     error: function(error) {
@@ -185,7 +185,7 @@
                             } else {
                                 //$(".unread").html("");
                                 $(".video_unread").css('display', 'none');
-                                $('#IncomingVideoCall').modal('hide');
+                                // $('#IncomingVideoCall').modal('hide');
                                 $(document).attr("title", title);
                             }
                             if (response["url"] != '') {
