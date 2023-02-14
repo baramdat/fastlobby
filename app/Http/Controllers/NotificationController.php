@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Exception;
-use Auth;
+use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
 {
@@ -115,9 +115,9 @@ class NotificationController extends Controller
 
     public function messageMarkRead($id, $data)
     {
-        $notification = auth()->user()->notifications()->where('id', $id)->first();
+        $notification = Auth::user()->notifications()->where('id', $id)->first();
         $url = $notification->data["route"];
-        auth()->user()->unreadNotifications->where('id', $id)->markAsRead();
+        Auth::user()->unreadNotifications->where('id', $id)->markAsRead();
         return redirect($url);
     }
     
