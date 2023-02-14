@@ -50,7 +50,7 @@ Route::group(['middleware' => ['web']], function () {
     Route::post('room/create', [VideoRoomsController::class, 'createRoom'])->middleware('isLogin');
     Route::get('room/join/{roomName}', [VideoRoomsController::class, 'joinRoom'])->middleware('isLogin');
     //message mark as read
-    Route::get('/mark/read/{id}/{data}', [NotificationController::class, 'messageMarkRead']);
+    Route::get('/mark/read/{id}/{data}', [NotificationController::class, 'messageMarkRead'])->middleware('isLogin');
     Route::get('video/chat/compose',[VideoRoomsController::class, 'videoChatCompose'])->middleware('isLogin');
 
 
