@@ -184,9 +184,8 @@ class VideoRoomsController extends Controller
 
             $token = config('services.twilio.token');
             $sid = config('services.twilio.sid');
-            // $client = new Client($sid, $token);       
-            // $allRooms = $client->video->rooms->read([]);
-            $allRooms=[];
+            $client = new Client($sid, $token);       
+            $allRooms = $client->video->rooms->read([]);
             $rooms = array_map(function ($room) {
                 return $room->uniqueName;
             }, $allRooms);
@@ -308,15 +307,16 @@ class VideoRoomsController extends Controller
         // A unique identifier for this user
         $identity = Auth::user()->first_name;
         Log::debug("joined with identity: $identity");
-        //$token = new AccessToken(config('services.twilio.sid'), config('services.twilio.key'), config('services.twilio.secret'), 3600, $identity);
+        $token = new AccessToken(config('services.twilio.sid'), config('services.twilio.key'), config('services.twilio.secret'), 3600, $identity);
         $videoGrant = new VideoGrant();
         $videoGrant->setRoom($roomName);
-        Session::get('videoCall')->addGrant($videoGrant);
+        $token->addGrant($videoGrant);
         $room = VideoChatRoom::where('room_name', $roomName)->first();
         $user_one = User::where('id', $room->user_one)->first();
         $user_two = User::where('id', $room->user_two)->first();
         DB::table('users')->where('id', Auth::user()->id)->update(["chat_status" => "busy"]);
-        return view('templates.chat.video_chat_room', ['accessToken' => Session::get('videoCall')->toJWT(), 'room' => $room, 'roomName' => $roomName, 'user_one' => $user_one->id, 'user_two' => $user_two->id]);
+        dd($token->toJWT());
+        return view('templates.chat.video_chat_room', ['accessToken' => $token->toJWT(), 'room' => $room, 'roomName' => $roomName, 'user_one' => $user_one->id, 'user_two' => $user_two->id]);
     }
 
     public function generateUniqueName()

@@ -150,8 +150,6 @@ class authController extends Controller
                     $user = Auth::user();
                     $responseArray = $user->createToken('app')->accessToken;
                     $identity = Auth::user()->first_name;
-                    $token = new AccessToken(config('services.twilio.sid'), config('services.twilio.key'), config('services.twilio.secret'), 86400, $identity);
-                    $request->session()->put('videoCall',  $token);
                     $role = '';
                     if (Auth::user()->hasRole('Visitor')) {
                         $role = 'visitor';
