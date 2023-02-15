@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Crypt;
 use App\Mail\visitorConfirmation;
+use Twilio\Jwt\AccessToken;
 
 class authController extends Controller
 {
@@ -124,6 +125,7 @@ class authController extends Controller
         if (Auth::check()) {
             return redirect()->route('dashboard');
         } else {
+
             Session::flush();
             $res = [];
             $res["msg"] = "no";
@@ -147,6 +149,9 @@ class authController extends Controller
                 if (Auth::user()->status == 'active') {
                     $user = Auth::user();
                     $responseArray = $user->createToken('app')->accessToken;
+                    $identity = Auth::user()->first_name;
+                    $token = new AccessToken(config('services.twilio.sid'), config('services.twilio.key'), config('services.twilio.secret'), 86400, $identity);
+                    $request->session()->put('videoCall',  $token);
                     $role = '';
                     if (Auth::user()->hasRole('Visitor')) {
                         $role = 'visitor';
@@ -156,13 +161,11 @@ class authController extends Controller
                     } elseif (Auth::user()->hasRole('Guard')) {
 
                         $role = 'guard';
-                    
                     } elseif (Auth::user()->hasRole('BuildingAdmin')) {
                         $role = 'BuildingAdmin';
                     } elseif (Auth::user()->hasRole('Integrator')) {
                         $role = 'Integrator';
-                    }
-                     else {
+                    } else {
                         $role = 'admin';
                     }
                     $passwordcheck = $user->password_updated;
@@ -185,13 +188,12 @@ class authController extends Controller
 
                     // } 
 
-                    return response()->json(['status' => 'success', 'token' => $responseArray, 'msg' => 'You have successfully login', 'data' => $user, 'role' => $role,'password_status'=>$passwordcheck]);
+                    return response()->json(['status' => 'success', 'token' => $responseArray, 'msg' => 'You have successfully login', 'data' => $user, 'role' => $role, 'password_status' => $passwordcheck]);
                 } else {
                     Auth::logout();
                     return response()->json(['status' => 'fail', 'msg' => 'Your account is not active Yet']);
                 }
-            }
-            else{
+            } else {
                 return response()->json([
                     'status' => 'fail',
                     'msg' => 'Invalid Email/Password'
@@ -203,8 +205,6 @@ class authController extends Controller
                 'msg' => $exception->getMessage()
             ], 400);
         }
-
-        
     }
 
     public function logout(Request $request)
