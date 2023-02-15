@@ -307,7 +307,6 @@ class VideoRoomsController extends Controller
         // A unique identifier for this user
         $identity = Auth::user()->first_name;
         Log::debug("joined with identity: $identity");
-        dd($identity);
         $token = new AccessToken(config('services.twilio.sid'), config('services.twilio.key'), config('services.twilio.secret'), 3600, $identity);
         $videoGrant = new VideoGrant();
         $videoGrant->setRoom($roomName);
