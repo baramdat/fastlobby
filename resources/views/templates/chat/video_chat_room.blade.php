@@ -99,6 +99,7 @@ Chat
                 <div id="media-div" class="d-none">
                 </div>
                 <div id="my-video-chat-window" class="mb-2">
+                    
 
                 </div>
             </div>
