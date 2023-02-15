@@ -315,7 +315,7 @@ class VideoRoomsController extends Controller
         $user_one = User::where('id', $room->user_one)->first();
         $user_two = User::where('id', $room->user_two)->first();
         DB::table('users')->where('id', Auth::user()->id)->update(["chat_status" => "busy"]);
-        dd($token->toJWT());
+        
         return view('templates.chat.video_chat_room', ['accessToken' => $token->toJWT(), 'room' => $room, 'roomName' => $roomName, 'user_one' => $user_one->id, 'user_two' => $user_two->id]);
     }
 
