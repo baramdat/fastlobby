@@ -45,7 +45,7 @@ class VideoRoomsController extends Controller
     //video chat compose page
     public function videoChatCompose()
     {
-        try{
+        try {
             $user = Auth::user();
             $site = Site::where('id', $user->site_id)->first();
             $users = [];
@@ -180,7 +180,7 @@ class VideoRoomsController extends Controller
                     $q->where('name', 'Tenant');
                 })->where('id', $user->parent_id)->first();
             }
-            
+
             $token = config('services.twilio.token');
             $sid = config('services.twilio.sid');
             $client = new Client($sid, $token);       
@@ -188,12 +188,11 @@ class VideoRoomsController extends Controller
             $rooms = array_map(function ($room) {
                 return $room->uniqueName;
             }, $allRooms);
+            // dd('test');
             return view('templates/chat/compose_video_chat', ['users' => $users, 'rooms' => $rooms]);
+        } catch (\Exception $e) {
+            return view('templates/chat/compose_video_chat', ['users' => [], 'rooms' => [], 'error' => $e->getMessage()]);
         }
-        catch(\Exception $e){
-            return view('templates/chat/compose_video_chat', ['users' => [], 'rooms' => [],'error' => $e->getMessage()]);
-        }
-
     }
 
     //Room built method
@@ -214,42 +213,43 @@ class VideoRoomsController extends Controller
 
             // if ($receiver_status == "available") {
 
-                $room = '';
-                $room = VideoChatRoom::where('user_one', Auth::user()->id)->where('user_two', $id)->orWhere('user_one', $id)->where('user_two', Auth::user()->id)->first();
+            $room = '';
+            $room = VideoChatRoom::where('user_one', Auth::user()->id)->where('user_two', $id)->orWhere('user_one', $id)->where('user_two', Auth::user()->id)->first();
 
-                if (!empty($room)) {
-                    $roomName = $room->room_name;
+            if (!empty($room)) {
+                $roomName = $room->room_name;
+            } else {
+                $client = new Client(config('services.twilio.sid'), config('services.twilio.token'));
+                $roomName = "room" . Auth::user()->id . $id;
+                $client->video->rooms->create([
+                    'uniqueName' => "'.$roomName.'",
+                    'type' => 'group',
+                    'recordParticipantsOnConnect' => false
+                ]);
+                $room = new VideoChatRoom();
+                $user_one = Auth::user();
+                $user_two = User::where('id', $id)->first();
+                $room->room_name = $roomName;
+                $room->user_one = $user_one->id;
+                $room->user_two = $user_two->id;
+                $room->save();
+            }
+
+            if ($room) {
+
+                $message = VideoChatRoom::find($room->id);
+                $notifyable = User::where('id', $id)->first();
+                $sender =  User::where('id', Auth::user()->id)->first();
+                Notification::send($notifyable, new videoChatNotification($sender, $message));
+                $userNotification = DB::table('notifications')->latest()->first();
+                $notifications = json_decode($userNotification->data);
+                $notificationId = $userNotification->id;
+                if ($notificationId) {
+                    $callurl = $notificationId;
                 } else {
-                    $client = new Client(config('services.twilio.sid'), config('services.twilio.token'));
-                    $roomName = "room" . Auth::user()->id . $id;
-                    $client->video->rooms->create([
-                        'uniqueName' => "'.$roomName.'",
-                        'type' => 'group',
-                        'recordParticipantsOnConnect' => false
-                    ]);
-                    $room = new VideoChatRoom();
-                    $user_one = Auth::user();
-                    $user_two = User::where('id', $id)->first();
-                    $room->room_name = $roomName;
-                    $room->user_one = $user_one->id;
-                    $room->user_two = $user_two->id;
-                    $room->save();
-                }
-                if ($room) {
-
-                    $message = VideoChatRoom::find($room->id);
-                    $notifyable = User::where('id', $id)->first();
-                    $sender =  User::where('id', Auth::user()->id)->first();
-                    Notification::send($notifyable, new videoChatNotification($sender, $message));
-                    $userNotification = DB::table('notifications')->latest()->first();
-                    $notifications = json_decode($userNotification->data);
-                    $notificationId = $userNotification->id;
-                    if ($notificationId) {
-                        $callurl = '/mark/read/' . $notificationId . '/' . $notifications->id;
-                   } else {
                     $callurl = '';
-                   }
-                    $VideoNotification = '
+                }
+                $VideoNotification = '
                         <a class="dropdown-item d-flex" href="/mark/read/' . $notificationId . '/' . $notifications->id . '">
                         <div class="row">
                             <div class="wd-90p">
@@ -263,13 +263,14 @@ class VideoRoomsController extends Controller
                             </div>
                         </div>
                         </a>';
-                     event(new UserNotification($VideoNotification, $id,$notificationId,$callurl));
-                    $url = env('APP_URL') . '/room/join/' . $roomName;
-                    DB::table('users')->where('id', $sender->id)->update(["chat_status" => "busy"]);
-                    return response()->json(['status' => 'success', 'room' => $room, 'url' => $url]);
-                } else {
-                    return response()->json(['status' => "fail", 'msg' => 'No room found!']);
-                }
+                event(new UserNotification($VideoNotification, $id, $notificationId, $callurl));
+                $url = env('APP_URL') . '/room/join/' . $roomName;
+                
+                DB::table('users')->where('id', $sender->id)->update(["chat_status" => "busy"]);
+                return response()->json(['status' => 'success', 'room' => $room, 'url' => $url]);
+            } else {
+                return response()->json(['status' => "fail", 'msg' => 'No room found!']);
+            }
             // } else {
 
             //     return response()->json(['status' => "fail", 'msg' => 'Participant is not available yet']);
@@ -315,7 +316,7 @@ class VideoRoomsController extends Controller
         $user_one = User::where('id', $room->user_one)->first();
         $user_two = User::where('id', $room->user_two)->first();
         DB::table('users')->where('id', Auth::user()->id)->update(["chat_status" => "busy"]);
-        return view('templates.chat.video_chat_room', ['accessToken' => $token->toJWT(),'room' => $room, 'roomName' => $roomName, 'user_one' => $user_one->id, 'user_two' => $user_two->id]);
+        return view('templates.chat.video_chat_room', ['accessToken' => $token->toJWT(), 'room' => $room, 'roomName' => $roomName, 'user_one' => $user_one->id, 'user_two' => $user_two->id]);
     }
 
     public function generateUniqueName()
@@ -356,23 +357,23 @@ class VideoRoomsController extends Controller
             $status = $request->status == 'joined' ? 1 : 0;
             $room = $request->room;
 
-            $video_chat_room = VideoChatRoom::where('room_name',$room)->first();
+            $video_chat_room = VideoChatRoom::where('room_name', $room)->first();
 
-            if(isset($video_chat_room) && !empty($video_chat_room)){
-                if($video_chat_room->user_one == $user_id){
+            if (isset($video_chat_room) && !empty($video_chat_room)) {
+                if ($video_chat_room->user_one == $user_id) {
                     $video_chat_room->is_one_joined = $status;
-                }else if($video_chat_room->user_two == $user_id){
+                } else if ($video_chat_room->user_two == $user_id) {
                     $video_chat_room->is_two_joined = $status;
                 }
-                if($video_chat_room->save()){
+                if ($video_chat_room->save()) {
                     $chat_status = $status == 'joined' ? 'busy' : 'available';
                     DB::table('users')->where('id', $user_id)->update(["chat_status" => $chat_status]);
-                    response()->json(['status' => 'success','msg'=>'User room status updated']);
-                }else{
-                    response()->json(['status' => 'fail','msg'=>'Failed to update the user room status']);
+                    response()->json(['status' => 'success', 'msg' => 'User room status updated']);
+                } else {
+                    response()->json(['status' => 'fail', 'msg' => 'Failed to update the user room status']);
                 }
-            }else{
-                response()->json(['status' => 'fail','msg'=>'Video chat room not found']);
+            } else {
+                response()->json(['status' => 'fail', 'msg' => 'Video chat room not found']);
             }
         } catch (Exception $e) {
             return response()->json(['status' => 'fail', 'msg' => $e->getMessage()]);

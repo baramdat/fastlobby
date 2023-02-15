@@ -12,7 +12,7 @@ class NotificationController extends Controller
 
     public function messageNotificationManage()
     {
-        try{
+        try {
             $html = "";
             $user = auth()->user();
             $userNotifications = array();
@@ -21,7 +21,7 @@ class NotificationController extends Controller
             $notificationss = $user->notifications->where('type', 'App\Notifications\MessageNotification')
                 ->all();
             $countHead = "";
-            
+
             if (isset($notificationss) && sizeof($notificationss) > 0) {
                 $message = "";
                 foreach ($notificationss as $notification) {
@@ -46,17 +46,17 @@ class NotificationController extends Controller
                     }
                 }
                 return response()->json(['status' => 'success', 'unread' => $unread, 'messages' => $message, 'head' => $head]);
-            }else{
+            } else {
                 return response()->json(['status' => 'fail', 'unread' => $unread, 'messages' => "", 'head' => $head]);
             }
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response()->json(['status' => 'fail', 'unread' => '', 'messages' => $e->getMessage(), 'head' => '']);
         }
     }
 
     public function videoNotificationManage()
     {
-        try{
+        try {
             $html = "";
             $user = auth()->user();
             $userNotifications = array();
@@ -67,14 +67,14 @@ class NotificationController extends Controller
             $notificationss = $user->notifications->where('type', 'App\Notifications\videoChatNotification')
                 ->all();
             $countHead = "";
-            
+
             if (isset($notificationss) && sizeof($notificationss) > 0) {
                 $message = "";
-                foreach($notificationss as $notification) {
+                foreach ($notificationss as $notification) {
                     if ($notification->read_at == NULL) {
                         $notificationId = $notification->id;
                         // $sender_id = $notification->data['sender_id'];
-                          if ($notificationId) {
+                        if ($notificationId) {
                             $url = '/mark/read/' . $notificationId . '/' . $notification->data['id'];
                         } else {
                             $url = '';
@@ -98,18 +98,17 @@ class NotificationController extends Controller
                         $head = '<h5 class="m-0">(' . $unread . ') New Messages</h5>';
                         $countHead = '<span class="alert-count unreadCount">' . $unread . '</span>
                                 <i class="bx bx-bell"></i>';
-                    } 
-                    else {
+                    } else {
                         $url = " ";
                         $notificationId = " ";
                     }
                 }
                 return response()->json(['status' => 'success', 'unread' => $unread, 'url' => $url, 'notificationId' => $notificationId,  'messages' => $message, 'head' => $head]);
-            }else{
+            } else {
                 return response()->json(['status' => 'fail', 'unread' => $unread, 'url' => $url, 'notificationId' => '',  'messages' => '', 'head' => $head]);
             }
-        }catch(\Exception $e){
-            return response()->json(['status' => 'fail', 'unread' => '', 'url' => '', 'notificationId' => '',  'messages' => $e->getLine().": ".$e->getMessage(), 'head' => '']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'fail', 'unread' => '', 'url' => '', 'notificationId' => '',  'messages' => $e->getLine() . ": " . $e->getMessage(), 'head' => '']);
         }
     }
 
@@ -120,20 +119,38 @@ class NotificationController extends Controller
         Auth::user()->unreadNotifications->where('id', $id)->markAsRead();
         return redirect($url);
     }
-    
+    public function videoMarkRead(Request $request)
+    {
+        try {
+            $id = $request->id;
+            
+            if ($id != '') {
+                $notification = Auth::user()->notifications()->where('id', $id)->first();
+                $url = $notification->data["route"];
+                Auth::user()->unreadNotifications->where('id', $id)->markAsRead();
+                return response()->json(['status' => 'success', 'url' => $url]);
+            } else {
+                return response()->json(['status' => "fail", 'msg' => 'No room found!']);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'fail', 'unread' => '', 'url' => '', 'notificationId' => '',  'messages' => $e->getLine() . ": " . $e->getMessage(), 'head' => '']);
+        }
+        // return redirect($url);
+    }
+
     public function videoNotificationRead($id)
     {
         auth()->user()->unreadNotifications->where('id', $id)->markAsRead();
-        return response(['status'=>'success','msg'=>'call declined!']);
+        return response(['status' => 'success', 'msg' => 'call declined!']);
     }
-        public function notificationDelete($id)
+    public function notificationDelete($id)
     {
         $notification = auth()->user()->notifications()->where('id', $id)->first();
-        
-        if($notification){
+
+        if ($notification) {
             $notification->delete();
         }
 
-        return response()->json(['status'=>'success','msg'=>'deleted']);
+        return response()->json(['status' => 'success', 'msg' => 'deleted']);
     }
 }

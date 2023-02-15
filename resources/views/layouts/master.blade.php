@@ -9,13 +9,14 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="description" content="Dealer Reg – Dealer Reg">
     <meta name="author" content="Spruko Technologies Private Limited">
-    <meta name="keywords" content="admin,admin dashboard,admin panel,admin template,bootstrap,clean,dashboard,flat,jquery,modern,responsive,premium admin templates,responsive admin,ui,ui kit.">
+    <meta name="keywords"
+        content="admin,admin dashboard,admin panel,admin template,bootstrap,clean,dashboard,flat,jquery,modern,responsive,premium admin templates,responsive admin,ui,ui kit.">
     <!-- FAVICON -->
-    <link rel="shortcut icon" type="image/x-icon" href="{{asset(env('APP_ICON'))}}" />
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset(env('APP_ICON')) }}" />
 
 
     <!-- TITLE -->
-    <title>@yield('title') – {{env('APP_NAME')}} </title>
+    <title>@yield('title') – {{ env('APP_NAME') }} </title>
 
     @include('includes.style')
     <style>
@@ -26,23 +27,52 @@
             }
         }
     </style>
-    <script src="{{asset('assets/js/howler.js')}}"></script>
-    <script src="{{asset('assets/js/jquery-visibility.js')}}"></script>
+    <script src="{{ asset('assets/js/howler.js') }}"></script>
+    <script src="{{ asset('assets/js/jquery-visibility.js') }}"></script>
     <script src="{{ asset('js/app.js') }}"></script>
     <script>
-
-        
         var title = '';
         title = $(document).attr('title');
         $(document).ready(function() {
-            var is_chat_room = "{{Request::is('room/join/*')}}"
+            var is_chat_room = "{{ Request::is('room/join/*') }}"
             var room_id = '';
-            if(is_chat_room == 1){
+            if (is_chat_room == 1) {
                 var room_id = "{{ collect(request()->segments())->last() }}"
             }
             var sound = new Howl({
                 src: ['/assets/ring/ring.mp3']
             });
+            $('.approve').on('click', function(e) {
+                e.preventDefault();
+                var id = $(this).attr('data-id');
+                $.ajax({
+                    url: '/api/single/video/read',
+                    type: "POST",
+                    data: {
+                        id: id
+                    },
+                    dataType: "JSON",
+
+                    cache: false,
+                    beforeSend: function() {},
+                    complete: function() {
+
+                    },
+                    success: function(response) {
+                        if (response["status"] == "fail") {
+                        //     alert('fails');
+                        //    // $(".message-head").html(response["head"])
+                        } else if (response["status"] == "success") {
+                            console.log(response["url"]);
+                            location.replace(response["url"]);
+                        }
+                    },
+                    error: function(error) {
+                        console.log(error);
+                    }
+                });
+
+            })
             let currentUserId = '{{ auth()->user()->id }}';
             Echo.private(`private-message.${currentUserId}`)
                 .listen('UserNotification', function(response) {
@@ -58,7 +88,7 @@
 
                     // $(".video_messages-body").html('')
                     if (url != '') {
-                        $(".approve").attr("href", url);
+                        $(".approve").attr("data-id", url);
                     }
                     $(".modal-body").html('')
                     $(".video_messages-body").prepend(message);
@@ -73,7 +103,7 @@
             // inactiveVideoMessageNotification();
 
             $(function() {
-                setInterval(mesageNotification, 10000);
+                // setInterval(mesageNotification, 10000);
                 // setInterval(videoMessageNotification, 5000);
                 // setInterval(inactiveVideoMessageNotification, 5000);
             });
@@ -90,7 +120,7 @@
 
                     },
                     success: function(response) {
-                        
+
                         if (response["status"] == "fail") {
                             $(".message-head").html(response["head"])
                         } else if (response["status"] == "success") {
@@ -189,7 +219,7 @@
                                 $(document).attr("title", title);
                             }
                             if (response["url"] != '') {
-                                $(".approve").attr("href", response['url']);
+                                $(".approve").attr("data-id", response['url']);
                             }
                             $(".video_message-head").html(response["head"])
                             $("#exampleModalLabel").html(response["Upcoming video call"])
@@ -209,7 +239,7 @@
                 });
             }
 
-            function updateUserRoomStatus(){
+            function updateUserRoomStatus() {
 
             }
 
@@ -256,7 +286,7 @@
 
     <!-- GLOBAL-LOADER -->
     <!--<div id="global-loader">-->
-    <!--    <img src="{{asset('assets/images/loader.svg')}}" class="loader-img" alt="Loader">-->
+    <!--    <img src="{{ asset('assets/images/loader.svg') }}" class="loader-img" alt="Loader">-->
     <!--</div>-->
     <!-- /GLOBAL-LOADER -->
 
@@ -278,19 +308,23 @@
                     <!-- CONTAINER -->
                     @yield('content')
                     <!-- CONTAINER END -->
-                    <div class="modal fade" id="IncomingVideoCall" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal fade" id="IncomingVideoCall" tabindex="-1" aria-labelledby="exampleModalLabel"
+                        aria-hidden="true">
                         <div class="modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="exampleModalLabel">Incoming video call</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
                                     Somenone is inviting you for a video call..
                                 </div>
                                 <div class="modal-footer">
-                                    <a href="" type="button" class="btn btn-primary approve">Join</a>
-                                    <button type="button" class="btn btn-secondary" data-id="" data="" id="videoDecline" data-bs-dismiss="modal">Decline</button>
+                                    <a href="javascript:void(0)" data-id="" type="button"
+                                        class="btn btn-primary approve">Join</a>
+                                    <button type="button" class="btn btn-secondary" data-id="" data=""
+                                        id="videoDecline" data-bs-dismiss="modal">Decline</button>
                                 </div>
                             </div>
                         </div>
@@ -315,33 +349,33 @@
 
     @include('includes.script')
     <!-- Script for closed tab notification pop up -->
-    // <script>
-    //     $(function() {
-    //         function inactiveEvent() {
-    //             inactiveVideoMessageNotification();
-    //             $(document).attr("title", "inactive event triggered!");
-    //             console.log('triggered!');
-    //         }
+    //
+    <script>
+        //     $(function() {
+        //         function inactiveEvent() {
+        //             inactiveVideoMessageNotification();
+        //             $(document).attr("title", "inactive event triggered!");
+        //             console.log('triggered!');
+        //         }
 
-    //         function activeEvent() {
-    //             $(document).attr("title", "active event triggered!");
-    //             console.log('triggered!');
-    //         }
-    //         $(document).on({
-    //             'show.visibility': function() {
-    //                 $(document).attr("title", "tab active");
-    //                 setTimeout(activeEvent, 5000);
-    //             },
-    //             'hide.visibility': function() {
-    //                 $(document).attr("title", "tab closed");
-    //                 setTimeout(inactiveEvent, 5000);
-    //             }
-    //         });
+        //         function activeEvent() {
+        //             $(document).attr("title", "active event triggered!");
+        //             console.log('triggered!');
+        //         }
+        //         $(document).on({
+        //             'show.visibility': function() {
+        //                 $(document).attr("title", "tab active");
+        //                 setTimeout(activeEvent, 5000);
+        //             },
+        //             'hide.visibility': function() {
+        //                 $(document).attr("title", "tab closed");
+        //                 setTimeout(inactiveEvent, 5000);
+        //             }
+        //         });
 
-    //     });
-    // </script>
+        //     });
+        // 
+    </script>
 </body>
 
 </html>
-
-
