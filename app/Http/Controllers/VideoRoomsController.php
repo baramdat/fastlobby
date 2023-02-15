@@ -189,7 +189,7 @@ class VideoRoomsController extends Controller
             $rooms = array_map(function ($room) {
                 return $room->uniqueName;
             }, $allRooms);
-            // dd('test');
+            
             return view('templates/chat/compose_video_chat', ['users' => $users, 'rooms' => $rooms]);
         } catch (\Exception $e) {
             return view('templates/chat/compose_video_chat', ['users' => [], 'rooms' => [], 'error' => $e->getMessage()]);
@@ -307,6 +307,7 @@ class VideoRoomsController extends Controller
         // A unique identifier for this user
         $identity = Auth::user()->first_name;
         Log::debug("joined with identity: $identity");
+        dd($identity);
         $token = new AccessToken(config('services.twilio.sid'), config('services.twilio.key'), config('services.twilio.secret'), 3600, $identity);
         $videoGrant = new VideoGrant();
         $videoGrant->setRoom($roomName);
