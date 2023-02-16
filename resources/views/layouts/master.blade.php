@@ -103,7 +103,7 @@
             // inactiveVideoMessageNotification();
 
             $(function() {
-                // setInterval(mesageNotification, 10000);
+                 setInterval(mesageNotification, 10000);
                 // setInterval(videoMessageNotification, 5000);
                 // setInterval(inactiveVideoMessageNotification, 5000);
             });
