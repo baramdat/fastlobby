@@ -60,8 +60,8 @@
                     },
                     success: function(response) {
                         if (response["status"] == "fail") {
-                        //     alert('fails');
-                        //    // $(".message-head").html(response["head"])
+                            //     alert('fails');
+                            //    // $(".message-head").html(response["head"])
                         } else if (response["status"] == "success") {
                             console.log(response["url"]);
                             location.replace(response["url"]);
@@ -82,11 +82,6 @@
                     $('.video_unread').css('display', 'block');
                     $('#IncomingVideoCall').modal('show');
                     sound.play();
-                    console.log(message);
-                    // $(".video_message-head").html(response["head"])
-                    // $("#exampleModalLabel").html(response["Upcoming video call"])
-
-                    // $(".video_messages-body").html('')
                     if (url != '') {
                         $(".approve").attr("data-id", url);
                     }
@@ -95,15 +90,17 @@
                     $(".modal-body").html(message);
                     $("#videoDecline").attr("data-id", notificationId);
                 });
-            // $('.approve').on('click', function(e) {
-            //     sound.stop();
-            // })
-            // mesageNotification();
+
+            Echo.private(`chat-messages.${currentUserId}`)
+                .listen('ChatMessages', function(response) {
+                    mesageNotification();
+                });
+             mesageNotification();
             videoMessageNotification();
             // inactiveVideoMessageNotification();
 
             $(function() {
-                 setInterval(mesageNotification, 10000);
+               // setInterval(mesageNotification, 10000);
                 // setInterval(videoMessageNotification, 5000);
                 // setInterval(inactiveVideoMessageNotification, 5000);
             });
@@ -137,7 +134,7 @@
                             $(".messages-body").html('')
                             $(".messages-body").prepend(response["messages"])
 
-                            setTimeout(mesageNotification, 10000);
+                            //setTimeout(mesageNotification, 10000);
                         }
                     },
                     error: function(error) {
@@ -161,7 +158,7 @@
                         } else if (response["status"] == "success") {
 
                             if (response["unread"] > 0) {
-                                $(".unread").html(response["unread"])
+                               // $(".unread").html(response["unread"])
                                 $('.video_unread').css('display', 'block');
                                 // $('#IncomingVideoCall').modal('show');
                                 // // sound.play();

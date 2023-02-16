@@ -2,18 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
+use App\Models\Chat;
+use App\Models\Site;
+use App\Models\User;
+use App\Events\ChatMessages;
+use App\Models\Conversation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
+
 use Illuminate\Support\Facades\Validator;
 use App\Notifications\MessageNotification;
 use Illuminate\Support\Facades\Notification;
-use App\Models\User;
-use App\Models\Site;
-use App\Models\Chat;
-use App\Models\Conversation;
-use Illuminate\Support\Facades\Crypt;
-
-use Exception;
 
 class chatController extends Controller
 {
@@ -32,7 +34,7 @@ class chatController extends Controller
             //     $q->where('name', 'BuildingAdmin')->orWhere('name', 'Integrator');
             // })->get();
 
-           $all = User::whereHas('roles', function ($q) {
+            $all = User::whereHas('roles', function ($q) {
                 $q->where('name', 'BuildingAdmin')->orWhere('name', 'Integrator');
             })->get();
 
@@ -71,7 +73,7 @@ class chatController extends Controller
 
                 foreach ($buildingAdmins as $buildingAdmin) {
 
-                   $us = User::where('id',$buildingAdmin->id)->first();
+                    $us = User::where('id', $buildingAdmin->id)->first();
 
                     if (!empty($us)) {
 
@@ -168,6 +170,7 @@ class chatController extends Controller
                 $q->where('name', 'Tenant');
             })->where('id', $user->parent_id)->first();
         }
+        //  dd($cureent_role);
         return view('templates/chat/compose', ['users' => $users, 'current_role' => $cureent_role]);
     }
 
@@ -188,10 +191,11 @@ class chatController extends Controller
             $chat->receiver_id = $request->receiver_id;
             $chat->message = $request->message;
             $chat->save();
-                $message = Chat::find($chat->id);
-                $notifyable = User::where('id', $chat->receiver_id)->first();
-                $sender =  User::where('id', $chat->sender_id)->first();
-                Notification::send($notifyable, new MessageNotification($sender, $message));
+            $message = Chat::find($chat->id);
+            $notifyable = User::where('id', $chat->receiver_id)->first();
+            $sender =  User::where('id', $chat->sender_id)->first();
+            Notification::send($notifyable, new MessageNotification($sender, $message));
+
             return response()->json(['status' => 'success', 'msg' => 'message sent']);
         } catch (Exception $e) {
             return response()->json(['status' => 'fail', 'msg' => $e->getMessage()]);
@@ -232,7 +236,7 @@ class chatController extends Controller
         }
     }
 
-     public function messageSend(Request $request)
+    public function messageSend(Request $request)
     {
 
         $validator = Validator::make($request->all(), [
@@ -278,6 +282,10 @@ class chatController extends Controller
                 $notifyable = User::where('id', $chat->receiver_id)->first();
                 $sender =  User::where('id', $chat->sender_id)->first();
                 Notification::send($notifyable, new MessageNotification($sender, $message));
+                $userNotification = DB::table('notifications')->where('type', 'App\Notifications\MessageNotification')->latest()->first();
+                $notifications = json_decode($userNotification->data);
+                $notificationId = $userNotification->id;
+                event(new ChatMessages($request->receiver_id));
                 return response()->json(['status' => 'success', 'msg' => 'message sent']);
             } else {
 
@@ -307,7 +315,7 @@ class chatController extends Controller
             }
         }
 
-         $chats = $chats->where('receiver_id', $user->id)->orWhere('sender_id', $user->id)->where('is_sender', 'yes')->orderBy('id','DESC');
+        $chats = $chats->where('receiver_id', $user->id)->orWhere('sender_id', $user->id)->where('is_sender', 'yes')->orderBy('id', 'DESC');
 
 
 
@@ -317,7 +325,7 @@ class chatController extends Controller
         return view('templates.chat.list', compact('chats'));
     }
 
-     public function inbox($id)
+    public function inbox($id)
     {
 
         $decrypt = Crypt::decryptString($id);
@@ -326,13 +334,13 @@ class chatController extends Controller
         $con = Conversation::find($conversationId);
 
         if ($con) {
-            if(Auth::user()->id == $con->sender_id){
-                
+            if (Auth::user()->id == $con->sender_id) {
+
                 $receiverId = $con->receiver_id;
-            }else{
+            } else {
                 $receiverId = $con->sender_id;
             }
-            
+
             $chats = Chat::where('conversation_id', $conversationId)->get();
 
 
@@ -345,19 +353,19 @@ class chatController extends Controller
 
     public function messageReply(Request $request)
     {
-        
+
         $conversation = Conversation::find($request->conversation_id);
         $receiverId = $request->receiver_id;
-        
-        
+
+
 
         if ($request->receiver_id == $conversation->sender_id) {
 
             $conversation->is_sender = "yes";
             $conversation->save();
         }
-        $c = Chat::where('id',$request->message_id)->first();
-         if ($request->attach != "") {
+        $c = Chat::where('id', $request->message_id)->first();
+        if ($request->attach != "") {
 
             $files = $request->attach;
         } else {
@@ -373,22 +381,21 @@ class chatController extends Controller
         $chat->conversation_id = $request->conversation_id;
         $chat->file = $files;
         $chat->save();
-        
+
         if ($chat) {
-            if($chat->sender_id==Auth::user()->id){
-                
+            if ($chat->sender_id == Auth::user()->id) {
+
                 $receiverId = $chat->receiver_id;
-                
-            }else{
-                
+            } else {
+
                 $receiverId = $chat->sender_id;
             }
-            
+
             $message = Chat::find($chat->id);
             $sender = User::find($message->sender_id);
             $receiver = User::find($message->receiver_id);
             $notifyable = User::where('id', $chat->receiver_id)->first();
-            Notification::send($notifyable, new MessageNotification($sender,$message));
+            Notification::send($notifyable, new MessageNotification($sender, $message));
             if ($sender->image == "") {
                 $img = '<img src="' . asset('assets/images/users/6.jpg') . '" class="me-2 rounded-circle avatar avatar-lg" alt="">';
             } else {
@@ -415,7 +422,7 @@ class chatController extends Controller
                 </div>
             ';
 
-            return response()->json(['status' => 'success', 'html' => $html, 'id' => $message->id,'receiverId'=>$receiverId]);
+            return response()->json(['status' => 'success', 'html' => $html, 'id' => $message->id, 'receiverId' => $receiverId]);
         } else {
             return response()->json(['status' => 'fail', 'msg' => 'Failed to reply']);
         }
@@ -441,29 +448,27 @@ class chatController extends Controller
                 $filename = "ticket" . $imgHash . "." . $ext;
                 $move = $file->move($path, $filename);
                 if (in_array($ext, $imgExt)) {
-                           
+
                     $imgRow = '
                         <a href="javascript:;">
-                        <img src="'.asset('uploads/files/'.$filename).'" class="card-img-top" alt="img">
+                        <img src="' . asset('uploads/files/' . $filename) . '" class="card-img-top" alt="img">
                         </a>
                     ';
-
                 } elseif ($ext == 'pdf') {
                     $imgRow = '
                     <a href="javascript:;">
                     <embed src="' . asset('uploads/files/' . $filename) . '" class="card-img-top" alt="img" width="150px" height="150px"/>
                     </a>
                     ';
-                }
-                else {
+                } else {
                     $imgRow = '<a href="javascript:void(0)" class="ticket-file bg-light text-muted font-weight-bold">TXT</a>';
                 }
                 $html = '
                 <div class="col-xl-3 col-lg-3 col-md-4 col-sm-4 mb-2 mb-sm-0" id="row' . $fileCount . '">
                     <div class="border overflow-hidden p-0 br-7">
-                        '.$imgRow.'
+                        ' . $imgRow . '
                         <div class="p-3 text-center">
-                            <a href="javascript:;" class="fw-semibold fs-15 text-dark">'.$fileNam.'</a><br>
+                            <a href="javascript:;" class="fw-semibold fs-15 text-dark">' . $fileNam . '</a><br>
                             <a href="javascript:;" class="fw-semibold fs-15 text-dark btnDelete" id="' . $fileCount . '"><i class="fas fa-trash"></i></a>
                         </div>
                     </div>
@@ -509,10 +514,11 @@ class chatController extends Controller
     }
 
 
-    public function sentList(){
+    public function sentList()
+    {
         $user = Auth::user();
 
-        $chats = Chat::orderBy('id','DESC')->where('sender_id',$user->id)->paginate(20);
+        $chats = Chat::orderBy('id', 'DESC')->where('sender_id', $user->id)->paginate(20);
 
         return view('templates/chat/sent_list', compact('chats'));
     }
@@ -528,7 +534,6 @@ class chatController extends Controller
         if ($chat) {
 
             return view('templates.chat.sent_item', compact('chat'));
-
         } else {
 
             return view('templates.404');

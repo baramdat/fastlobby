@@ -27,3 +27,7 @@ Broadcast::channel('private-message.{id}' , function($user , $id){
     // $id = explode("-",$id);
     return (int) $user->id === (int) $id;
 });
+Broadcast::channel('chat-messages.{id}' , function($user , $id){
+    // $id = explode("-",$id);
+    return (int) $user->id === (int) $id;
+});

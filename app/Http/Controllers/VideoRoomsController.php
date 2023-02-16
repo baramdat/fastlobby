@@ -242,7 +242,7 @@ class VideoRoomsController extends Controller
                 $notifyable = User::where('id', $id)->first();
                 $sender =  User::where('id', Auth::user()->id)->first();
                 Notification::send($notifyable, new videoChatNotification($sender, $message));
-                $userNotification = DB::table('notifications')->latest()->first();
+                $userNotification = DB::table('notifications')->where('type', 'App\Notifications\videoChatNotification')->latest()->first();
                 $notifications = json_decode($userNotification->data);
                 $notificationId = $userNotification->id;
                 if ($notificationId) {
