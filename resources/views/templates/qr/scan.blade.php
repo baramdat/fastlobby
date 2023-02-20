@@ -33,6 +33,7 @@ Scan Qrcode
 <script>
     function docReady(fn) {
         // see if DOM is already available
+       
         if (document.readyState === "complete"
             || document.readyState === "interactive") {
             // call on next available tick
@@ -44,6 +45,7 @@ Scan Qrcode
 
     docReady(function () {
         var resultContainer = document.getElementById('qr-reader-results');
+        console.log(resultContainer);
         var lastResult, countResults = 0;
         function onScanSuccess(decodedText, decodedResult) {
             if (decodedText !== lastResult) {
@@ -78,6 +80,7 @@ Scan Qrcode
     var barcode = '';
     var interval;
     document.addEventListener('keydown', function(evt) {
+        
         if (interval)
             clearInterval(interval);
         if (evt.code == 'Enter') {
@@ -94,7 +97,7 @@ Scan Qrcode
 
     function handleBarcode(scanned_barcode) {
         $data = scanned_barcode;
-        document.querySelector('#last-barcode').innerHTML = $data;
+        //document.querySelector('#last-barcode').innerHTML = $data;
          $.ajax({
             type: "get",
             url: "/api/get/appointment/details/" + data,

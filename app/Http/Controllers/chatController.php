@@ -170,7 +170,6 @@ class chatController extends Controller
                 $q->where('name', 'Tenant');
             })->where('id', $user->parent_id)->first();
         }
-        //  dd($cureent_role);
         return view('templates/chat/compose', ['users' => $users, 'current_role' => $cureent_role]);
     }
 

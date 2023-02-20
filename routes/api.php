@@ -329,6 +329,8 @@ Route::get('/message/notifications',[NotificationController::class,'messageNotif
 // Appointment detail through unique code.
 
 Route::get('get/appointment/details/{id}',[AppointmentController::class,'AppointmentDetailThroughCode']);
+// bar code scanner
+Route::get('get/appointment/barcode/details/{id}',[AppointmentController::class,'BarcodeScanner']);
 
 
 

@@ -745,13 +745,6 @@ class AppointmentController extends Controller
             $visitor = Appointment::find($request->id);
 
             $client = User::find($visitor->tenant_id);
-
-
-
-            
-
-
-
             Mail::send('templates.email.visitor_appointment_request', ['client'=>$client,'visitor'=>$visitor], function ($message) use ($client) {
 
                 $message->to($client->email);
@@ -1229,13 +1222,13 @@ class AppointmentController extends Controller
         {
 
             $site = User::find(auth()->user()->id);
-
+            
             $clients = User::whereHas('roles', function ($q) {
 
                 $q->where('name', 'Tenant');
 
             })->where('site_id', $site->site->id)->get();
-
+            //dd($clients);
             $clientIds = [];
 
             if (isset($clients) && sizeof($clients)>0) {
@@ -1259,11 +1252,11 @@ class AppointmentController extends Controller
                 $today = \Carbon\Carbon::now()->format('Y-m-d');
 
                 $i = 1;
-
-    
+                
+                
 
                 $apps = WalkinAppointment::whereIn('tenant_id', $clientIds)->whereDate('created_at', $today)->get();
-
+              
                 $html = " ";
 
 
@@ -1279,13 +1272,13 @@ class AppointmentController extends Controller
                         if($app->status=="pending"){
 
                             $bg="bg-warning";
-
+                            $bg_text="Not approve";
                         }elseif($app->status=="aprove"){
 
                             $bg="bg-primary";
-
+                            $bg_text="Approved";
                         }else{
-
+                            $bg_text="Approved";
                             $bg= "bg-danger";
 
                         }
@@ -1306,7 +1299,7 @@ class AppointmentController extends Controller
 
                             <td>
 
-                                <span class="badge '.$bg.'" style="rounded-circle:10px;">'.$app->status.'</span>
+                                <span class="badge '.$bg.'" style="rounded-circle:10px;">'.$bg_text.'</span>
 
                             </td>
 
@@ -1437,5 +1430,37 @@ class AppointmentController extends Controller
         }
     }
 
+    // bar code sccaner for appointments
+    public function BarcodeScanner(Request $request,$id){
+        try {
+            $code = $id;
+            
+            $unique = substr($code, 0, 2);
+           if ($unique = 'AP') {
+                $site_id = 0;
+                if(isset($request->is_external) && isset($request->site_id)){
+                    $site_id = $request->site_id;
+                }else {
+                    if(!is_null(Auth::user())){
+                        $user = Auth::user();
+                        $site_id = $user->site_id;
+                    }
+                }
+                
+                $appointment  = Appointment::where('unique_code', $code)->first();
+                if ($appointment->site_id == $site_id) {
+                    
+                    return response()->json(['status' => 'success', 'id' => $appointment->id,'ap-status'=>$appointment->status]);
+                } else {
+                    return response()->json(['status' => 'fail', 'msg' => 'Invalid code for this site!']);
+                }
+            } else {
+                return response()->json(['status' => 'fail', 'msg' => 'Invalid code for this site']);
+            }
+        } catch (Exception $e) {
+
+            return response()->json(['status' => 'fail', 'msg' => $e->getMessage()]);
+        }
+    }
 }
 
