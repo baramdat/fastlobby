@@ -2,15 +2,21 @@
 
 
 
-use App\Http\Controllers\AppointmentController;
-
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\roleController;
+use App\Http\Controllers\VideoContent;
 
 use App\Http\Controllers\authController;
+
+use App\Http\Controllers\chatController;
+
+use App\Http\Controllers\roleController;
+
+use App\Http\Controllers\ScanController;
+
+use App\Http\Controllers\SiteController;
 
 use App\Http\Controllers\userController;
 
@@ -18,28 +24,23 @@ use App\Http\Controllers\LockerController;
 
 use App\Http\Controllers\PickupController;
 
-use App\Http\Controllers\ScanController;
+use App\Http\Controllers\VideoRoomsController;
 
-use App\Http\Controllers\SiteController;
+use App\Http\Controllers\AppointmentController;
+
+use App\Http\Controllers\NotificationController;
+
+use App\Http\Controllers\tenantEmployeeController;
 
 use App\Http\Controllers\CameraAuthenticationController;
-
-use App\Http\Controllers\Integrator\SiteController as IntegratorSiteController;
 
 use App\Http\Controllers\Integrator\BuildingAdminController;
 
 use App\Http\Controllers\Integrator\IntegratorDoorController;
-
-use App\Http\Controllers\BuildingAdmin\userController as buildingUserController;
-
-use App\Http\Controllers\BuildingAdmin\AppointmentController as BuildingAppointment;
-
 use App\Http\Controllers\BuildingAdmin\buildingDoorController;
-
-use App\Http\Controllers\tenantEmployeeController;
-use App\Http\Controllers\VideoRoomsController;
-use App\Http\Controllers\chatController;
-use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\Integrator\SiteController as IntegratorSiteController;
+use App\Http\Controllers\BuildingAdmin\userController as buildingUserController;
+use App\Http\Controllers\BuildingAdmin\AppointmentController as BuildingAppointment;
 
 
 /*
@@ -343,3 +344,12 @@ Route::get('add/site/uniquecode', [SiteController::class, 'addSiteUniqueCode']);
 //dumi routes for count
 Route::get('/user/count/for/chat', [userController::class, 'userCountForChat']);
 Route::get('/users/for/chat', [userController::class, 'usersForChat']);
+
+//
+
+Route::post('/video/add', [VideoContent::class, 'addVideo']);
+Route::post('/video/update', [VideoContent::class, 'updateVideo']);
+Route::get('/building/videos/count', [VideoContent::class, 'videoCount']);
+Route::get('/building/videos/list', [VideoContent::class, 'list']);
+Route::delete('/video/delete/{id}', [VideoContent::class, 'delete']);
+

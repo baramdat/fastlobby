@@ -1,23 +1,24 @@
 <?php
 
-use App\Http\Controllers\AppointmentController;
-use App\Http\Controllers\StreamingController;
+use App\Http\Middleware\CheckLogin;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\VideoContent;
 use App\Http\Controllers\authController;
+use App\Http\Controllers\chatController;
+use App\Http\Controllers\SiteController;
 use App\Http\Controllers\userController;
 use App\Http\Controllers\LockerController;
-use App\Http\Middleware\CheckLogin;
 use App\Http\Controllers\PickupController;
+use App\Http\Controllers\StreamingController;
 use App\Http\Controllers\VideoRoomsController;
-use App\Http\Controllers\SiteController;
-use App\Http\Controllers\Integrator\SiteController as IntegratorSiteController;
-use App\Http\Controllers\Integrator\BuildingAdminController;
-use App\Http\Controllers\BuildingAdmin\userController as buildingUserController;
+use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\tenantEmployeeController;
+use App\Http\Controllers\Integrator\BuildingAdminController;
 use App\Http\Controllers\Integrator\IntegratorDoorController;
 use App\Http\Controllers\BuildingAdmin\buildingDoorController;
-use App\Http\Controllers\chatController;
-use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\Integrator\SiteController as IntegratorSiteController;
+use App\Http\Controllers\BuildingAdmin\userController as buildingUserController;
 
 
 /*
@@ -81,6 +82,11 @@ Route::group(['middleware' => ['web']], function () {
     Route::view('building/door/add', 'templates.building_admin.door.add')->middleware('buildingAdmin');
     Route::view('building/door/list', 'templates.building_admin.door.list')->middleware('buildingAdmin');
     Route::get('/building/door/edit/{id}', [buildingDoorController::class, 'edit'])->middleware('buildingAdmin');
+    Route::view('building/video/content', 'templates.video_content.add')->middleware('buildingAdmin');
+    Route::view('building/video/list', 'templates.video_content.list')->middleware('buildingAdmin');
+    Route::get('/building/video/edit/{id}', [VideoContent::class, 'edit'])->middleware('buildingAdmin');
+
+
     // site
     Route::view('site/add', 'templates.site.add')->name('add-site')->middleware('adminsForSite');
     Route::view('site/list', 'templates.site.list')->name('site/list')->middleware('adminsForSite');

@@ -323,7 +323,25 @@
                 </li>
 
                 @endif
+                @if(Auth::user()->hasRole('BuildingAdmin'))
+                <li class="slide">
 
+                    <a class="side-menu__item" data-bs-toggle="slide" href="javascript:void(0)"><i class="side-menu__icon fa fa-play"></i><span class="side-menu__label">Contents</span><i class="angle fe fe-chevron-right"></i></a>
+
+                    <ul class="slide-menu">
+
+                        <li><a href="{{ url('building/video/content')}}" class="slide-item"> Post Video</a></li>
+
+
+
+                        <li><a href="{{ url('building/video/list')}}" class="slide-item">Video List</a></li>
+
+
+
+                    </ul>
+
+                </li>
+                @endif
                 @if(Auth::user()->hasRole('Integrator'))
 
                 <li class="slide">
