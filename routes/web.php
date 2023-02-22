@@ -85,7 +85,8 @@ Route::group(['middleware' => ['web']], function () {
     Route::view('building/video/content', 'templates.video_content.add')->middleware('buildingAdmin');
     Route::view('building/video/list', 'templates.video_content.list')->middleware('buildingAdmin');
     Route::get('/building/video/edit/{id}', [VideoContent::class, 'edit'])->middleware('buildingAdmin');
-
+    
+    
 
     // site
     Route::view('site/add', 'templates.site.add')->name('add-site')->middleware('adminsForSite');
@@ -142,6 +143,8 @@ Route::group(['middleware' => ['web']], function () {
 
 });
 
+// promotional videos
+Route::get('/all/promotional/videos', [VideoContent::class, 'allVideos']);
 
 //external incoming visitor
 Route::get('/external/scan/{id}', [SiteController::class, 'externalScanPage']);
@@ -241,4 +244,7 @@ Route::get('/dumi', function () {
 
 
 Route::get('appointment/detail/{id}', [AppointmentController::class, 'detail'])->name('detail');
+
+// external menus
+Route::view('external/pages', 'templates.external_design.menu');
 

@@ -331,10 +331,9 @@
                     <ul class="slide-menu">
 
                         <li><a href="{{ url('building/video/content')}}" class="slide-item"> Post Video</a></li>
-
-
-
                         <li><a href="{{ url('building/video/list')}}" class="slide-item">Video List</a></li>
+                        <li><a href="{{ url('all/promotional/videos')}}" class="slide-item">All Video</a></li>
+                        
 
 
 

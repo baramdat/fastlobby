@@ -125,9 +125,8 @@ class VideoContent extends Controller
                             <tr class="border-bottom"> 
                                 <td>' . $i++ . '</td>
                                 <td>
-                                <video width="200" height="120" controls>
-                                <source src="'.asset('/uploads/files/videos').'/'.$video->name.'" type="video/mp4">
-                                    
+                                <video width="180"  height="120"  controls>
+                                <source src="'.asset('/uploads/files/videos/').'/'.$video->name.'" type="video/mp4" >
                                     </video>
                                 </td>
                                 <td>
@@ -183,5 +182,20 @@ class VideoContent extends Controller
          } else {
              return view('templates.404');
          }
+     }
+
+     public function allVideos(){
+        $video = Videos::first();
+        $videos = Videos::all();
+        $arr=[];
+        foreach($videos as $vd){
+            $arr[]=$vd->name;
+        }
+        // dd($arr);
+       if ($video) {
+           return view('templates/video_content/all_videos', ['video' => $video,'array'=>$arr]);
+       } else {
+           return view('templates.404');
+       }
      }
 }
