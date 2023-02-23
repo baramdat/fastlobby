@@ -354,7 +354,7 @@ $site = \App\Models\Site::where('id', Auth::user()->site_id)->first();
 
                             <li><a href="{{ url('building/video/content') }}" class="slide-item"> Post Video</a></li>
                             <li><a href="{{ url('building/video/list') }}" class="slide-item">Video List</a></li>
-                            <li><a href="{{ url('all/promotional/videos') }}" class="slide-item">All Video</a></li>
+                            <li><a href="{{ url('all/promotional/videos').'/'.$site->id }}" target="_blank" class="slide-item">All Video</a></li>
 
 
 
