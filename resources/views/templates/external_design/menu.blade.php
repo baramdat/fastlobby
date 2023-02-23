@@ -59,8 +59,11 @@
 
     <div class="container ">
         <div class="row mt-5">
-
-            <div class="col-xl-12">
+            
+            <div class="col-xl-2">
+                <a class="btn btn-info" href="{{ URL::previous() }}"><i class="fa fa-arrow-left" aria-hidden="true"></i></a>
+            </div>
+            <div class="col-xl-9">
                 <h3>Please Select Menu</h3>
             </div>
         </div>
@@ -69,11 +72,9 @@
             <div class="col-xl-12">
 
                 <div class="row mt-5">
-                    <div class="col-lg-3 col-sm-12">
 
-                    </div>
                     <div class="col-lg-3 col-sm-12">
-                        <a href="{{ url('all/promotional/videos') }}" id="pomotional_videos"target="_blank"
+                        <a href="{{ url('all/promotional/videos').'/'.$site->id }}" id="pomotional_videos"target="_blank"
                             style="hover:background-color: rgb(60, 163, 70);">
                             <div class="card">
                                 <img class="card-img-top" src="{{ asset('/uploads/external/promotional.png') }}"
@@ -85,60 +86,39 @@
                         </a>
                     </div>
                     <div class="col-lg-3 col-sm-12">
-                        <a href="{{ url('all/promotional/videos') }}" id="pomotional_videos"target="_blank"
+                        <a href="/external/scan/{{$site->id}}" id="pomotional_videos"target="_blank"
                             style="hover:background-color: rgb(60, 163, 70);">
                             <div class="card">
                                 <img class="card-img-top" src="{{ asset('/uploads/external/scan-qr.jpg') }}"
                                     alt="Card image cap" height="130px">
                                 <div class="card-body">
-                                    <h5 class="card-title">Scan Qr</h5>
+                                    <h5 class="card-title">Qr Scanner</h5>
                                 </div>
                             </div>
                         </a>
                     </div>
                     <div class="col-lg-3 col-sm-12">
-                        <a href="{{ url('all/promotional/videos') }}" id="pomotional_videos"target="_blank"
+                        <a href="{{ url('contact/tenant').'/'.$site->id }}" id="pomotional_videos"target="_blank"
                             style="hover:background-color: rgb(60, 163, 70);">
                             <div class="card">
-                                <img class="card-img-top" src="{{ asset('/uploads/external/scaner.jfif') }}"
+                                <img class="card-img-top" src="{{ asset('/uploads/external/tenantt.avif') }}"
                                     alt="Card image cap" height="130px">
                                 <div class="card-body">
-                                    <h5 class="card-title">Barcode Scanner</h5>
+                                    <h5 class="card-title">Contact Tenant</h5>
                                 </div>
                             </div>
                         </a>
                     </div>
-                    
-
-
-
-
-
-
-
+  
                 </div>
-
-
-
             </div>
 
             <!-- ROW-1 END -->
-
-
-
         </div>
-
-
-
-
-
-
 
         <!-- BACK-TO-TOP -->
 
         <a href="#top" id="back-to-top"><i class="fa fa-angle-up"></i></a>
-
-
 
         @include('includes.script')
 

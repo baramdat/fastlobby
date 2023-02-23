@@ -352,4 +352,4 @@ Route::post('/video/update', [VideoContent::class, 'updateVideo']);
 Route::get('/building/videos/count', [VideoContent::class, 'videoCount']);
 Route::get('/building/videos/list', [VideoContent::class, 'list']);
 Route::delete('/video/delete/{id}', [VideoContent::class, 'delete']);
-
+Route::post('/external/contact/tenant', [VideoContent::class, 'send_email']);

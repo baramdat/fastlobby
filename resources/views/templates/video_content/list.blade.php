@@ -39,7 +39,9 @@
                 </ol>
 
             </div>
+            <a role="button" class="btn btn-dealer" href="{{ url('/building/video/content') }}">
 
+                <span class="fe fe-user-plus fs-14"></span> Post Video</a>
         </div>
 
         <!-- PAGE-HEADER END -->
@@ -113,7 +115,7 @@
                             <div class="media-body">
 
                                 <h6 class="mb-0 mt-1 text-muted">Video list</h6>
-                                
+
                             </div>
 
                         </div>
@@ -129,7 +131,7 @@
                                 <div class="panel panel-primary">
 
                                     <div class="panel-body tabs-menu-body border-0 pt-0">
-                                        
+
                                         <div class="table-responsive">
 
                                             <table id="data-table" class="table table-bordered text-nowrap mb-0">
@@ -233,7 +235,6 @@
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script type="text/javascript">
-   
         $(document).ready(function(e) {
 
 

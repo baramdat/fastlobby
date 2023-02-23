@@ -144,7 +144,7 @@ Route::group(['middleware' => ['web']], function () {
 });
 
 // promotional videos
-Route::get('/all/promotional/videos', [VideoContent::class, 'allVideos']);
+Route::get('/all/promotional/videos/{id}', [VideoContent::class, 'allVideos']);
 
 //external incoming visitor
 Route::get('/external/scan/{id}', [SiteController::class, 'externalScanPage']);
@@ -154,8 +154,8 @@ Route::get('/external/visitor/detail/{id}', [AppointmentController::class, 'exte
 Route::view('keyboard/wedge-one','templates.external.keyboard_wedge_one');
 Route::view('keyboard/wedge-three','templates.external.keyboard_wedge_three');
 Route::view('keyboard/wedge-two','templates.external.keyboard_wedge_two');
-
-
+Route::get('/external/pages/{id}', [VideoContent::class, 'external_pages']);
+Route::get('/contact/tenant/{id}', [VideoContent::class, 'contact_tenant']);
 
 Route::view('sample', 'templates.guard.camera');
 
@@ -246,5 +246,5 @@ Route::get('/dumi', function () {
 Route::get('appointment/detail/{id}', [AppointmentController::class, 'detail'])->name('detail');
 
 // external menus
-Route::view('external/pages', 'templates.external_design.menu');
+// Route::view('external/pages', 'templates.external_design.menu');
 
