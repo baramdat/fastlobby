@@ -33,8 +33,7 @@ $site = \App\Models\Site::where('id', Auth::user()->site_id)->first();
 
 
 
-            <img src="{{ asset(env('APP_LOGO')) }}" class="header-brand-img desktop-logo" alt="logo1s"
-                style="height:40x !important;">
+                                <img src="{{asset(env('APP_LOGO'))}}" class="header-brand-img desktop-logo" alt="logo1s" style="height:40x !important;">
 
             <img src="{{ asset(env('APP_LOGO')) }}" class="header-brand-img toggle-logo" alt="logo2s"
                 style="height:40x !important;">

@@ -24,9 +24,11 @@
 
         <div class="row">
             <div class="col-lg-3">
+                <a class="btn btn-info mt-5" href="{{ URL::previous() }}" style="float: right;"><i class="fa fa-arrow-left" aria-hidden="true"></i></a>
             </div>
             <div class="col-lg-6">
-                <div class="page-header">
+               
+                <div class="page-header">               
                     <h1 class="page-title">Contact Tenant</h1>
                 </div>
                 <div class="card">

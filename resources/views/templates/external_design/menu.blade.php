@@ -60,9 +60,7 @@
     <div class="container ">
         <div class="row mt-5">
             
-            <div class="col-xl-2">
-                <a class="btn btn-info" href="{{ URL::previous() }}"><i class="fa fa-arrow-left" aria-hidden="true"></i></a>
-            </div>
+            
             <div class="col-xl-9">
                 <h3>Please Select Menu</h3>
             </div>
