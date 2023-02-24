@@ -142,9 +142,6 @@
 
                                                         <th class="bg-transparent border-bottom-0" style="width: 20%;">
 
-                                                            Id </th>
-                                                        <th class="bg-transparent border-bottom-0" style="width: 20%;">
-
                                                             Video </th>
 
                                                         <th class="bg-transparent border-bottom-0" style="width: 20%;">

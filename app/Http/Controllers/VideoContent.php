@@ -21,8 +21,11 @@ class VideoContent extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'video' => 'required|file|mimetypes:video/mp4',
+                'video' => 'required|mimetypes:video/mp4,video/avi,video/mpeg,video/quicktime',
             ]);
+            if ($validator->fails()) {
+                return response()->json(['status' => 'fail', 'msg' => $validator->errors()->all()]);
+            }
             $video = new Videos();
             $path = public_path() . '/uploads/files/videos';
 
@@ -122,13 +125,12 @@ class VideoContent extends Controller
                 $result = $result->where('description', 'like', '%' . $filterSearch . '%');
             }
             $i = 1;
-            $videos = $result->take($filterLength)->skip($request->offset)->orderBy('id', 'DESC')->get();
+            $videos = $result->take($filterLength)->skip($request->offset)->orderBy('id', 'ASC')->get();
             if (isset($videos) && sizeof($videos) > 0) {
                 $html = '';
                 foreach ($videos as $video) {
                     $html .= '
                             <tr class="border-bottom"> 
-                                <td>' . $i++ . '</td>
                                 <td>
                                 <video width="180"  height="120"  controls>
                                 <source src="' . asset('/uploads/files/videos/') . '/' . $video->name . '" type="video/mp4" >
