@@ -8,7 +8,7 @@
         padding-top: 1.875em; 
         overflow: hidden;
         
-        background-image:url('../video_loading.gif'); 
+        background-color: black;
         background-repeat: no-repeat;
         background-size: cover;
         -webkit-background-size: cover;
