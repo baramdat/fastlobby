@@ -21,7 +21,7 @@ class VideoContent extends Controller
     {
         try {
             // $validator = Validator::make($request->all(), [
-            //     //'video' => 'required|mimetypes:video/mp4,video/avi,video/mpeg,video/quicktime',
+            //    // 'video' => 'required|mimetypes:video/mp4,video/avi,video/mpeg,video/quicktime,video/jpg,video/png,video/jpeg',
             // ]);
             // if ($validator->fails()) {
             //     return response()->json(['status' => 'fail', 'msg' => $validator->errors()->all()]);
