@@ -20,12 +20,12 @@ class VideoContent extends Controller
     public function addVideo(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'video' => 'required|mimetypes:video/mp4,video/avi,video/mpeg,video/quicktime',
-            ]);
-            if ($validator->fails()) {
-                return response()->json(['status' => 'fail', 'msg' => $validator->errors()->all()]);
-            }
+            // $validator = Validator::make($request->all(), [
+            //     //'video' => 'required|mimetypes:video/mp4,video/avi,video/mpeg,video/quicktime',
+            // ]);
+            // if ($validator->fails()) {
+            //     return response()->json(['status' => 'fail', 'msg' => $validator->errors()->all()]);
+            // }
             $video = new Videos();
             $path = public_path() . '/uploads/files/videos';
 
@@ -57,6 +57,7 @@ class VideoContent extends Controller
             $validator = Validator::make($request->all(), [
                 'description' => 'required|file|mimetypes:video/mp4',
             ]);
+            
             $video = Videos::where('id', $request->id)->first();
             $path = public_path() . '/uploads/files/videos';
 
@@ -131,11 +132,17 @@ class VideoContent extends Controller
                 foreach ($videos as $video) {
                     $html .= '
                             <tr class="border-bottom"> 
-                                <td>
-                                <video width="180"  height="120"  controls>
+                                <td>';
+                                if(str_contains(strtoupper($video->name), '.MP4') || str_contains(strtoupper($video->name), '.MOV') || str_contains(strtoupper($video->name), '.WMV') || str_contains(strtoupper($video->name), '.FLV') || str_contains(strtoupper($video->name), '.AVI')
+                                || str_contains(strtoupper($video->name), '.AVCHD')|| str_contains(strtoupper($video->name), '.WebM')|| str_contains(strtoupper($video->name), '.MKV')){
+                                $html .= '  <video width="180"  height="120"  controls>
                                 <source src="' . asset('/uploads/files/videos/') . '/' . $video->name . '" type="video/mp4" >
-                                    </video>
-                                </td>
+                                    </video>';
+                                 }else {
+                                    $html .= '  <img width="180"  height="120" src="' . asset('/uploads/files/videos/') . '/' . $video->name . '"  >
+                                        </img>';
+                                 } 
+                        $html .= '   </td>
                                 <td>
                                     <h6 class="mb-0 m-0 fs-14 ">
                                     ' . ucwords($video->description) . '</h6>
