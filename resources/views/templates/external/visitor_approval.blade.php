@@ -365,7 +365,7 @@
         var id = $(this).attr('data-id');
 
         var status = $(this).attr('data');
-
+        
         var spin= $('.fa-'+status);
 
         var btn=$(this);

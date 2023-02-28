@@ -38,7 +38,6 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
             data: {site_id:'{{$site->id}}',is_external: 1},
             dataType: "JSON",
             success: function(response) {
-                console.log(response)
                 if (response["status"] == "fail") {
                     alert('something went wrong!');
                 } else if (response["status"] == "success") {

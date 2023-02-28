@@ -76,7 +76,6 @@ class AppointmentController extends Controller
             $app->unique_code = $this->generateUniqueCode();
             $app->created_at = $today;
             $app->save();
-
             if ($app) {
                 $ap = Appointment::find($app->id);
                 $link =  $ap->unique_code;
@@ -1045,6 +1044,7 @@ class AppointmentController extends Controller
 
                 if ($app) {
 
+
                     $client = User::where('id',$app->tenant_id)->first();
 
                         return view('templates.appointment.walkin_visitor_detail',['visitor'=>$app,'client'=>$client]);
@@ -1068,7 +1068,7 @@ class AppointmentController extends Controller
             try{
 
                 $app_walkin = WalkinAppointment::where('id',$request->id)->first();
-
+                 
                 if($app_walkin){
 
                     $app_walkin->status = $request->status;
@@ -1084,6 +1084,7 @@ class AppointmentController extends Controller
                         $app->phone = $app_walkin->phone;
                         $app->date = $today;
                         $app->time = '08-09 am';
+                        $app->status = 'aprove';
                         $app->tenant_id = $app_walkin->tenant_id;
                         $app->site_id = $app_walkin->site_id;
                         $app->unique_code = $this->generateUniqueCode();
@@ -1272,7 +1273,7 @@ class AppointmentController extends Controller
                         if($app->status=="pending"){
 
                             $bg="bg-warning";
-                            $bg_text="Not approve";
+                            $bg_text="Pending";
                         }elseif($app->status=="aprove"){
 
                             $bg="bg-primary";

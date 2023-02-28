@@ -76,7 +76,7 @@ Dashboard
     <!-- PAGE-HEADER Breadcrumbs-->
     <div class="page-header">
         <div>
-            <h1 class="page-title">Appointment Listss</h1>
+            <h1 class="page-title">Appointment List</h1>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{{url('/dashboard')}}">Home</a> </li>
                 <li class="breadcrumb-item active" aria-current="page">Appointment List</li>

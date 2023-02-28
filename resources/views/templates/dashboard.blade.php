@@ -95,8 +95,7 @@
                             </div>
                         </div>
 
-                        <div class="card-body py-3 px-4"
-                            style="max-height: 295px; overflow-y: scroll;   scrollbar-width: none;">
+                        <div class="card-body py-3 px-4">
 
                             <div class="row">
 
@@ -1128,7 +1127,6 @@
             });
 
         }
-
         function informClient(id) {
             //  var id = $('#app_id').val();
             $.ajax({
@@ -1155,7 +1153,7 @@
 
                     } else if (response["status"] == "success") {
 
-                        toastr.success('Success', response["msg"])
+                       // toastr.success('Success', response["msg"])
                     }
                 },
                 error: function(error) {

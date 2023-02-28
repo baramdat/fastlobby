@@ -259,6 +259,8 @@ class AppointmentController extends Controller
                         $status = '<span class="badge bg-primary  text-white p-1" style="border-radius:10px">Checked In</span>';
                     } elseif ($value->status == "decline") {
                         $status = '<span class="badge bg-danger  text-white p-1" style="border-radius:10px">' . ucwords($value->status) . '</span>';
+                    }else{
+                        $status = '<span class="badge bg-success text-white p-1" style="border-radius:10px">Approved</span>';
                     }
                     $html .= '
                                 <tr class="border-bottom" id="row' . $value->id . '" data-id="' . $value->id . '"> 

@@ -205,19 +205,16 @@
         var is_guard = "{{ !is_null(Auth::user()) && Auth::user()->hasRole('Guard') ? 1 : 0 }}"
         var is_pending = "{{ isset($app->status) && $app->status == 'pending' ? 1 : 0 }}"
         var is_external = "{{ Request::get('external') }}"
-
         if (is_pending == 1) {
             if ((is_auth == 1 && is_guard == 1) || is_external == 1) {
                 informClient();
-            } else {
-                setTimeout(() => {
-                    window.location.href = "{{ url()->previous() }}";
-                }, 3000);
-            }
+            } 
         } else {
-            setTimeout(() => {
-                window.location.href = "{{ url()->previous() }}";
-            }, 3000);
+            if ((is_auth == 1 && is_guard == 1) || is_external == 1) {
+                setTimeout(() => {
+                 window.location.href = "{{ url()->previous() }}";
+             }, 3000);
+            } 
         }
         // informClient();
 
