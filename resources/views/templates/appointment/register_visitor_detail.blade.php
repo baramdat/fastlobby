@@ -164,14 +164,17 @@
                                         </div>
                                     @else
                                         <div class="text-center">
+                                            @if (Request::get('external')==1)
+                                            <img src="{{asset('images/stop.avif')}}" alt="" height="120px" width="120px"><br>
+                                            @endif
                                             <p><strong class="text-danger"> This appointment has already been
                                                     checked!</strong></p>
                                             <!-- {{ url()->current() }} {{ url()->previous() }} -->
-                                            {{-- @if (url()->current() != url()->previous())
-                                                <a href="{{ url()->previous() }}" class="btn btn-success mt-2">
-                                                    Go Back
+                                            @if (Request::get('external')==1)
+                                                <a href="{{url('request/new/qr').'/'.$app->unique_code}}" class="btn btn-primary mt-2">
+                                                    Request New Qr
                                                 </a>
-                                            @endif --}}
+                                            @endif
                                         </div>
                                     @endif
                                 </div>
@@ -208,13 +211,13 @@
         if (is_pending == 1) {
             if ((is_auth == 1 && is_guard == 1) || is_external == 1) {
                 informClient();
-            } 
+            }
         } else {
-            if ((is_auth == 1 && is_guard == 1) || is_external == 1) {
+            if ((is_auth == 1 && is_guard == 1)) {
                 setTimeout(() => {
-                 window.location.href = "{{ url()->previous() }}";
-             }, 3000);
-            } 
+                    window.location.href = "{{ url()->previous() }}";
+                }, 3000);
+            }
         }
         // informClient();
 
@@ -261,19 +264,25 @@
         function c() {
             var n = 5;
             var c = n;
-            $('#count').text(c);
-            setInterval(function() {
-                c--;
-                if (c >= 0) {
-                    $('#count').text(c);
-                }
-                if (c == 0) {
-                    $('#count').text(n);
-                    $("#btnElm").addClass('design');
-                    $("#counter-sec").css('display', 'none');
-                    window.location.href = "{{ url()->previous() }}";
-                }
-            }, 1000);
+            
+                $('#count').text(c);
+                setInterval(function() {
+                    c--;
+                    if (c >= 0) {
+                        $('#count').text(c);
+                    }
+                    if (c == 0) {
+                        $('#count').text(n);
+                        $("#btnElm").addClass('design');
+                        $("#counter-sec").css('display', 'none');
+                        if (is_external == 1) {
+                        }else{
+                            window.location.href = "{{ url()->previous() }}";
+                        }
+                       
+                    }
+                }, 1000);
+
         }
         $(document).on('click', '.btnInform', function(e) {
             var id = $(this).attr('id');

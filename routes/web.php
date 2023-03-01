@@ -244,6 +244,9 @@ Route::get('/dumi', function () {
 
 
 Route::get('appointment/detail/{id}', [AppointmentController::class, 'detail'])->name('detail');
+Route::get('request/new/qr/{id}', [AppointmentController::class, 'requestNewQr']);
+Route::get('external/visitor/qr/request/{id}', [AppointmentController::class, 'externalVistorRequest']);
+
 
 // external menus
 // Route::view('external/pages', 'templates.external_design.menu');

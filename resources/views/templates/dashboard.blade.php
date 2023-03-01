@@ -27,7 +27,10 @@
 
         <!-- ROW-1 -->
         <div class="row">
-
+            <div class="col-12 mb-3">
+                <img src="{{asset('uploads/files/').'/'.Auth::user()->image}}" alt="" height="60px" width="60px">
+                    <img src="{{asset('').Auth::user()->qr_code}}" alt="" height="60px" width="60px">
+            </div>
             @if (Auth::user()->hasRole('Tenant'))
                 <div class="col-12 mb-3">
                     Hello {{ Auth::user()->buisness_name }} | <small
@@ -35,10 +38,12 @@
                 </div>
             @else
                 <div class="col-12 mb-3">
+                    
                     Hello {{ Auth::user()->first_name }} | <small
                         class="badge bg-success">{{ ucwords(Auth::user()->roles->pluck('name')[0]) }}</small>
                 </div>
             @endif
+            
             @if (Auth::user()->hasRole('Guard'))
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xl-12 ">
                     <div class="card border p-0 overflow-hidden shadow-none">

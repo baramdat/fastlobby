@@ -164,7 +164,7 @@ class AppointmentController extends Controller
                 $result = Appointment::query();
 
                 $result = $result->where('site_id', Auth::user()->site_id);
-
+                 
                 if (isset($filterSearch) &&  $filterSearch != '') {
                     $result = $result->where('name', 'like', '%' . $filterSearch . '%');
                 }
@@ -180,7 +180,9 @@ class AppointmentController extends Controller
                 }
     
                 $i = 1;
+                
                 $appointments = $result->take($filterLength)->skip($request->offset)->orderBy('id', 'DESC')->get();
+                
                 if (isset($appointments) && sizeof($appointments) > 0) {
                     $html = '';
                     foreach ($appointments as $value) {
@@ -190,6 +192,8 @@ class AppointmentController extends Controller
                             $status = '<span class="badge bg-primary  text-white p-1" style="border-radius:10px">Checked In</span>';
                         } elseif ($value->status == "decline") {
                             $status = '<span class="badge bg-danger  text-white p-1" style="border-radius:10px">' . ucwords($value->status) . '</span>';
+                        }else{
+                            $status = '<span class="badge bg-success  text-white p-1" style="border-radius:10px">Approved</span>';
                         }
                         $html .= '
                                 <tr class="border-bottom" id="row' . $value->id . '" data-id="' . $value->id . '"> 
@@ -250,6 +254,7 @@ class AppointmentController extends Controller
         try {
 
             $appointments = Appointment::where('site_id', Auth::user()->site_id)->orderBy('id', 'DESC')->get();
+            
             if (isset($appointments) && sizeof($appointments) > 0) {
                 $html = '';
                 foreach ($appointments as $value) {

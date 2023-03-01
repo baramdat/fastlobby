@@ -283,6 +283,8 @@ Route::get('client/walkin-visitor/count',[AppointmentController::class,'walkinCo
 Route::get('client/walkin-visitors',[AppointmentController::class,'walkinVisitors']);
 
 Route::post('visitor/request/update',[AppointmentController::class,'ApproveWalkInRequest']);
+Route::post('visitor/qr/request/update',[AppointmentController::class,'ApproveQrRequest']);
+
 
 Route::post('webservice/image-scan',[ScanController::class,'imageScan']);
 
