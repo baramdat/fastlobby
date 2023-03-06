@@ -169,7 +169,7 @@ class QrCodeTypeController extends Controller
                 foreach ($list as $key => $value) {
                     $qr = new SiteQrCodes();
                     $link = $this->generateUniqueCode();
-                    // QrCode::format('png')->size(200)->generate($link, 'images/codes/' . $link . '.png');
+                    QrCode::format('png')->size(200)->generate($link, 'images/codes/' . $link . '.png');
                     $qr->site_id = Auth::user()->site_id;
                     $qr->image = ('images/codes/' . $link . '.png');
                     $qr->qr_type_id = $value->id;
