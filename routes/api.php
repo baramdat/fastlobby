@@ -4,6 +4,8 @@
 
 use Illuminate\Http\Request;
 
+// use App\Http\Controllers\QrCodeType;
+
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\VideoContent;
@@ -24,6 +26,8 @@ use App\Http\Controllers\LockerController;
 
 use App\Http\Controllers\PickupController;
 
+use App\Http\Controllers\QrCodeTypeController;
+
 use App\Http\Controllers\VideoRoomsController;
 
 use App\Http\Controllers\AppointmentController;
@@ -33,15 +37,13 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\tenantEmployeeController;
 
 use App\Http\Controllers\CameraAuthenticationController;
-
 use App\Http\Controllers\Integrator\BuildingAdminController;
-
 use App\Http\Controllers\Integrator\IntegratorDoorController;
 use App\Http\Controllers\BuildingAdmin\buildingDoorController;
 use App\Http\Controllers\Integrator\SiteController as IntegratorSiteController;
 use App\Http\Controllers\BuildingAdmin\userController as buildingUserController;
 use App\Http\Controllers\BuildingAdmin\AppointmentController as BuildingAppointment;
-
+use App\Http\Controllers\ScreenController;
 
 /*
 
@@ -112,6 +114,25 @@ Route::get('/users', [userController::class,'users']);
 Route::post('/user/update', [userController::class,'updateUser']);
 
 Route::delete('/delete/user/{id}', [userController::class,'deleteUser']);
+
+// qr code add
+Route::post('/qr/code/type/add', [QrCodeTypeController::class,'add']);
+Route::get('/qr/code/type/count', [QrCodeTypeController::class,'qrCodeCount']); 
+Route::get('/qr/code/list', [QrCodeTypeController::class,'list']);
+Route::delete('/delete/qr/code/type/{id}', [QrCodeTypeController::class,'deleteQrCode']);
+
+Route::get('/site/qr/count', [QrCodeTypeController::class,'siteQrCount']);
+Route::get('/qr/code/genrate/list', [QrCodeTypeController::class, 'generateList']);
+
+
+// add screen
+Route::post('/add/screens', [ScreenController::class,'add']);
+Route::get('/screen/count', [ScreenController::class,'screenCount']);
+Route::get('/screen/list', [ScreenController::class,'screenList']);
+Route::delete('/screen/delete/{id}', [ScreenController::class,'deleteScreen']);
+
+
+
 
 
 

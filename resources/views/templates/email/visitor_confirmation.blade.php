@@ -622,7 +622,7 @@
 
                 <tr style="">
 
-                    <td valign="top" class="bg_white" style="padding: 1em 2.5em 0 2.5em;">
+                    <td valign="top" class="bg_white" style="padding: 1em 2.5em 0 2.5em; background-color: #ffffff;">
 
                         <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
 

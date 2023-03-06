@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\CheckLogin;
+// use App\Http\Controllers\QrCodeType;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\VideoContent;
 use App\Http\Controllers\authController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\userController;
 use App\Http\Controllers\LockerController;
 use App\Http\Controllers\PickupController;
 use App\Http\Controllers\StreamingController;
+use App\Http\Controllers\QrCodeTypeController;
 use App\Http\Controllers\VideoRoomsController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\NotificationController;
@@ -19,7 +21,7 @@ use App\Http\Controllers\Integrator\IntegratorDoorController;
 use App\Http\Controllers\BuildingAdmin\buildingDoorController;
 use App\Http\Controllers\Integrator\SiteController as IntegratorSiteController;
 use App\Http\Controllers\BuildingAdmin\userController as buildingUserController;
-
+use App\Http\Controllers\ScreenController;
 
 /*
 |--------------------------------------------------------------------------
@@ -63,6 +65,16 @@ Route::group(['middleware' => ['web']], function () {
     Route::view('user/role', 'templates.users.role')->name('role/list')->middleware('Admin');
     Route::get('/user/edit/{id}', [userController::class, 'editUser'])->middleware('Admin');
     Route::get('/user/detail/{id}', [UserController::class, 'userDetail'])->middleware('Admin');
+     // qr code type
+     Route::get('/qr/code/type/add', [QrCodeTypeController::class, 'index'])->middleware('Admin');
+     Route::view('qr/code/type/list', 'templates.qr_codes_types.list')->name('qr/code/list')->middleware('Admin');
+    Route::view('/view/site/qr/list', 'templates.qr_codes_types.site_qr_list');
+     // screen route
+     Route::get('/add/screen', [ScreenController::class, 'index']);
+     Route::view('screen/list', 'templates.screens.list');
+     Route::get('/view/screen/data/{id}', [ScreenController::class, 'screenView']);
+     
+     
 
     //integrator for building admins routes
     Route::get('integrator/user/add', [BuildingAdminController::class, 'viewAdd'])->middleware('integrator');
