@@ -120,7 +120,7 @@ class ScreenController extends Controller
 
     public function screenView($id){
         $screen=Screens::where('unique_code',$id)->first();
-        $qr_code=SiteQrCodes::where('site_id',Auth::user()->site_id)->whereIn('qr_type_id',json_decode($screen->qrs_codes))->get();
+        $qr_code=SiteQrCodes::whereIn('qr_type_id',json_decode($screen->qrs_codes))->get();
         $arr=json_decode($screen->videos);
         if ($arr) {
             return view('templates/screens/screen_view', ['video' => $arr[0], 'array' => $arr,'qr_code'=>$qr_code]);
