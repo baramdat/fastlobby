@@ -130,6 +130,8 @@ Route::post('/add/screens', [ScreenController::class,'add']);
 Route::get('/screen/count', [ScreenController::class,'screenCount']);
 Route::get('/screen/list', [ScreenController::class,'screenList']);
 Route::delete('/screen/delete/{id}', [ScreenController::class,'deleteScreen']);
+Route::post('/update/screens', [ScreenController::class,'updateScreen']);
+
 
 
 

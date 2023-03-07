@@ -3,7 +3,7 @@
 
 
 @section('title')
-    Add Screen
+    Edit Screen
 @endsection
 
 
@@ -30,67 +30,26 @@
 
         </div>
 
-        @if (Auth::user()->hasRole('Admin'))
-            <div class="page-header">
+        <div class="page-header">
 
-                <h1 class="page-title">Qr Code add</h1>
+            <h1 class="page-title">Edit Screen</h1>
 
-                <div>
+            <div>
 
-                    <ol class="breadcrumb">
+                <ol class="breadcrumb">
 
-                        <li class="breadcrumb-item"><a href="{{ url('/dashboard') }}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url('/dashboard') }}">Home</a></li>
 
-                        <li class="breadcrumb-item"><a href="{{ url('/user/list') }}">Qr code list</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url('/screen/list') }}">Screen list</a></li>
 
-                        <li class="breadcrumb-item active" aria-current="page">Qr code add</li>
+                    <li class="breadcrumb-item active" aria-current="page">Edit Screen </li>
 
-                    </ol>
-
-                </div>
+                </ol>
 
             </div>
-        @elseif(Auth::user()->hasRole('Integrator'))
-            <div class="page-header">
 
-                <h1 class="page-title">Building Admin Add</h1>
+        </div>
 
-                <div>
-
-                    <ol class="breadcrumb">
-
-                        <li class="breadcrumb-item"><a href="{{ url('/dashboard') }}">Home</a></li>
-
-                        <li class="breadcrumb-item"><a href="{{ url('/user/list') }}">Building Admins</a></li>
-
-                        <li class="breadcrumb-item active" aria-current="page">Building Admin add</li>
-
-                    </ol>
-
-                </div>
-
-            </div>
-        @else
-            <div class="page-header">
-
-                <h1 class="page-title">Add Screen</h1>
-
-                <div>
-
-                    <ol class="breadcrumb">
-
-                        <li class="breadcrumb-item"><a href="{{ url('/dashboard') }}">Home</a></li>
-
-                        <li class="breadcrumb-item"><a href="{{ url('/screen/list') }}">Screen list</a></li>
-
-                        <li class="breadcrumb-item active" aria-current="page">Add Screen </li>
-
-                    </ol>
-
-                </div>
-
-            </div>
-        @endif
 
         <!-- PAGE-HEADER END -->
 
@@ -121,48 +80,50 @@
                                         <label for="exampleInputname" class="form-label mb-0">Name: <span
                                                 class="text-danger">*</span> </label>
 
-                                        <input type="text" class="form-control" id="name" name="name" required
+                                        <input type="text" class="form-control" id="name" name="name" value="{{$screen->name}}" required
                                             placeholder="Enter name of screen">
-
+                                            <input type="hidden"  id="id" name="id" value="{{$screen->id}}">
                                     </div>
 
                                 </div>
-                               
+
                             </div>
                             <div class="row">
                                 <div class="col-12 col-xs-12 col-md-6">
                                     <h3>Videos</h3>
-                                    @foreach($videos as $vd)
-                                    <div class="form-group">
-                                        {{-- <label
-                                            class="control-label col-9 col-xs-9 col-sm-7 col-lg-6">{{$vd->name}}</label> --}}
-                                        <div class="col-3 col-xs-3 col-sm-5 checkbox form-check">
-                                            <input class="form-check-input position-static" id="videos" name="videos[]" type="checkbox" value="{{$vd->name}}" />
-                                            <label class="form-check-label" for="gridCheck">
-                                                {{ $vd->name }}
-                                              </label>
+                                    @foreach ($videos as $vd)
+                                        <div class="form-group">
+                                            {{-- <label
+                                                class="control-label col-9 col-xs-9 col-sm-7 col-lg-6">{{ $vd->name }}</label> --}}
+                                            <div class="col-3 col-xs-3 col-sm-5 checkbox form-check">
+                                                <input class="form-check-input position-static" id="videos" name="videos[]" type="checkbox" {{in_array($vd->name,json_decode($screen->videos))? 'checked': ''}} 
+                                                    value="{{ $vd->name }}" />
+                                                    <label class="form-check-label" for="gridCheck">
+                                                        {{ $vd->name }}
+                                                      </label>
+                                            </div>
                                         </div>
-                                    </div>
                                     @endforeach
                                 </div>
                                 <div class="col-12 col-xs-12 col-md-6">
                                     <h3>Qr Codes</h3>
-                                    @foreach($qrs as $qr)
-                                    <div class="form-group">
-                                        {{-- <label
-                                            class="control-label col-9 col-xs-9 col-sm-7 col-lg-6">{{$qr->name}}</label> --}}
-                                        <div class="col-3 col-xs-3 col-sm-5 checkbox form-check">
-                                            <input class="form-check-input position-static" id="qrs" name="qrs[]" type="checkbox"   value="{{$qr->id}}"/>
-                                            <label class="form-check-label" for="gridCheck">
-                                                {{$qr->name}}
-                                              </label>
+                                    @foreach ($qrs as $qr)
+                                        <div class="form-group">
+                                            {{-- <label
+                                                class="control-label col-9 col-xs-9 col-sm-7 col-lg-6">{{ $qr->name }}</label> --}}
+                                            <div class="col-3 col-xs-3 col-sm-5 checkbox form-check">
+                                                <input class="form-check-input position-static"  id="qrs" name="qrs[]" type="checkbox" {{in_array($qr->id,json_decode($screen->qrs_codes))? 'checked': ''}}
+                                                    value="{{ $qr->id }}" />
+                                                    <label class="form-check-label" for="gridCheck">
+                                                        {{ $qr->name }}
+                                                      </label>
+                                            </div>
                                         </div>
-                                    </div>
                                     @endforeach
-                                    
+
                                 </div>
                             </div>
-                            
+
                             <div class="card-footer text-end">
 
                                 <button type="submit" class="btn btn-primary btnSubmit" id="btnSubmit"> <i
@@ -213,7 +174,7 @@
 
                 $.ajax({
 
-                    url: '/api/add/screens',
+                    url: '/api/update/screens',
 
                     type: "POST",
 
@@ -270,12 +231,6 @@
                 });
 
             }));
-
-
-
-
-
-
         });
     </script>
 @endsection

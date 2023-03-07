@@ -73,7 +73,7 @@ Route::group(['middleware' => ['web']], function () {
      Route::get('/add/screen', [ScreenController::class, 'index']);
      Route::view('screen/list', 'templates.screens.list');
      Route::get('/view/screen/data/{id}', [ScreenController::class, 'screenView']);
-     
+     Route::get('/screen/edit/{id}', [ScreenController::class, 'editScreen']);
      
 
     //integrator for building admins routes

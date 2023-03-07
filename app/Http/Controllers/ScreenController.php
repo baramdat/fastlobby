@@ -105,7 +105,8 @@ class ScreenController extends Controller
                      </td>
                      <td>
                          <div class="btn-group btn-group-sm" role="group">
-                             
+                         <a  href="/screen/edit/' . $usr->id . '" class="btn btn-warning btnEdit">Edit</a>
+                         
                              <a  class="btn btn-danger text-white btnDelete" id="' . $usr->id . '">Delete</a>
                          </div>
                      </td>
@@ -128,6 +129,47 @@ class ScreenController extends Controller
             return view('templates.404');
         }
         
+    }
+    public function editScreen($id)
+    {
+        $screen = Screens::where('id', $id)->first();
+        $videos = Videos::where('site_id', Auth::user()->site_id)->get();
+        $qrs = QrCodeType::get();
+        if ($screen) {
+            return view('templates/screens/edit', compact('screen','videos','qrs'));
+        } else {
+            return view('templates.404');
+        }
+    }
+    // update user
+    public function updateScreen(Request $request)
+    {
+        try {
+            $screen = Screens::where('id', $request->id)->first();
+            if ($screen) {
+
+                $screen->name = $request->name;
+                $screen->videos = json_encode($request->videos);
+                $screen->qrs_codes = json_encode($request->qrs);
+                
+            if ($screen->save()) {
+                return response()->json([
+                    'status' => 'success',
+                    'msg' => 'Screen Updated Successfully'
+                ], 200);
+            } else {
+                return response()->json([
+                    'status' => 'fail',
+                    'msg' => 'something went wrong'
+                ], 200);
+            }
+        }
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => 'fail',
+                'msg' => $e->getMessage()
+            ], 200);
+        }
     }
 
     public function deleteScreen($id){

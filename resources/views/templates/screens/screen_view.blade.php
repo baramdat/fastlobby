@@ -1,9 +1,10 @@
 <style>
     .video-container {
         position: relative;
-        height: auto;
-        padding-bottom: 47.25%;
-        padding-top: 1.875em;
+        height: 90%;
+        /* height: auto;
+        padding-bottom: 40.25%;
+        padding-top: 1.875em; */
         overflow: hidden;
 
         background-color: black;
@@ -43,14 +44,14 @@
         transform: translate(-50%, -50%);
     }
 
-    .video-container img {
+    .video-container #imageFile {
         /* Make video to at least 100% wide and tall */
-        min-width: 100%;
+        /* min-width: 100%;
         min-height: 100%;
 
         /* Setting width & height to auto prevents the browser from stretching or squishing the video */
         width: auto;
-        height: auto;
+        height: auto; 
 
         /* Center the video */
         position: absolute;
@@ -60,7 +61,7 @@
     }
 </style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
-<div style="height: auto; width:auto;">
+<div style="height:100%; width:100%;">
     <center>
         <div class="video-container">
 
@@ -76,7 +77,7 @@
         </div>
         <hr>
         @foreach($qr_code as $qr)
-        <img src="{{ asset($qr->image) }}" height ="50px" width ="50px" alt=""> &nbsp;&nbsp; &nbsp;&nbsp;
+        <img  src="{{ asset($qr->image) }}" height ="50px" width ="50px" alt="" style="padding-left: 20.25%;"> &nbsp;&nbsp; &nbsp;&nbsp;
         @endforeach
     </center>
 </div>
