@@ -644,7 +644,7 @@ class AppointmentController extends Controller
             $result = Appointment::query();
 
             $result = $result->where('tenant_id', Auth::user()->id);
-            
+             
             if (isset($filterSearch) &&  $filterSearch != '') {
 
                 $result = $result->where('name', 'like', '%' . $filterSearch . '%');
@@ -662,14 +662,19 @@ class AppointmentController extends Controller
                 $result = $result->where('status', $filterStatus);
 
             }
-           
             if(isset($filterDate)&& $filterDate !=''){
                 $date=explode('-',$filterDate);
                  $from=Carbon::createFromFormat('m/d/Y', trim($date[0]));
                  $to=Carbon::createFromFormat('m/d/Y', trim($date[1]));
-                $result = $result->whereBetween('created_at', [$from, $to]);
+                 if($from !=$to){
+                    $result = $result->whereBetween('created_at', [$from, $to]);
+                 }else{
+                    $today = \Carbon\Carbon::now()->format('Y-m-d');
+                    $result = $result->whereDate('created_at', $today);
+                 }
+                
             }
-
+            
 
             if (isset($filterPhone) &&  $filterPhone != ' ') {
 
@@ -1338,7 +1343,7 @@ class AppointmentController extends Controller
                 $q->where('name', 'Tenant');
 
             })->where('site_id', $site->site->id)->get();
-            //dd($clients);
+            
             $clientIds = [];
 
             if (isset($clients) && sizeof($clients)>0) {
@@ -1366,7 +1371,7 @@ class AppointmentController extends Controller
                 
 
                 $apps = WalkinAppointment::whereIn('tenant_id', $clientIds)->whereDate('created_at', $today)->get();
-              
+                
                 $html = " ";
 
 
