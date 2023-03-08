@@ -26,6 +26,8 @@ class ScreenController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'name' => 'required',
+                'videos' => 'required',
+                'qrs' => 'required',
             ]);
 
             if ($validator->fails()) {
