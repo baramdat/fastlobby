@@ -69,6 +69,7 @@ Route::group(['middleware' => ['web']], function () {
      Route::get('/qr/code/type/add', [QrCodeTypeController::class, 'index'])->middleware('Admin');
      Route::view('qr/code/type/list', 'templates.qr_codes_types.list')->name('qr/code/list')->middleware('Admin');
     Route::view('/view/site/qr/list', 'templates.qr_codes_types.site_qr_list');
+    Route::get('/add/site/qr/code', [QrCodeTypeController::class, 'addSiteQr']);
      // screen route
      Route::get('/add/screen', [ScreenController::class, 'index']);
      Route::view('screen/list', 'templates.screens.list');

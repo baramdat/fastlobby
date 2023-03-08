@@ -38,7 +38,7 @@
                     </ol>
 
                 </div>
-                <a role="button" class="btn btn-dealer" id="addQrCode" href="javascript:void(0)">
+                <a role="button" class="btn btn-dealer" id="addQrCode" href="{{url('/add/site/qr/code')}}">
 
                     <span class="fa fa-qrcode"></span>  NEW QR</a>
             @endif

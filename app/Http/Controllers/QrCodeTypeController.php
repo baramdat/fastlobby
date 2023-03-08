@@ -20,6 +20,12 @@ class QrCodeTypeController extends Controller
             return view('templates.404');
         }
     }
+    public function addSiteQr()
+    {
+        $qr_type = QrCodeType::where('site_id', '0')->orWhere('site_id', Auth::user()->site_id)->get();
+
+        return view('templates.qr_codes_types.add_site_qr', compact('qr_type'));
+    }
 
     public function add(Request $request)
     {
@@ -49,6 +55,46 @@ class QrCodeTypeController extends Controller
                 return response()->json([
                     'status' => 'fail',
                     'msg' => 'Failed to create an Qr code type!'
+                ], 200);
+            }
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => 'fail',
+                'msg' => $e->getMessage()
+            ], 200);
+        }
+    }
+
+    public function addSiteQrCode(Request $request)
+    {
+        try {
+
+            if (isset($request->type_name) && $request->type_name != '') {
+                $type = new QrCodeType();
+
+                $type->name = $request->type_name;
+                $type->save();
+                $site_qr_type = $type->id;
+            } else {
+                $site_qr_type = $request->qr_type;
+            }
+            $qr = new SiteQrCodes();
+            $link = $this->generateUniqueCode();
+            // QrCode::format('png')->size(200)->generate($link, 'images/codes/' . $link . '.png');
+            $qr->site_id = Auth::user()->site_id;
+            $qr->image = ('images/codes/' . $link . '.png');
+            $qr->qr_type_id = $site_qr_type;
+            $qr->qr_code = $link;
+            $qr->save();
+            if ($qr) {
+                return response()->json([
+                    'status' => 'success',
+                    'msg' => 'Site qr code  created successfully'
+                ], 200);
+            } else {
+                return response()->json([
+                    'status' => 'fail',
+                    'msg' => 'Failed to create an Site qr code!'
                 ], 200);
             }
         } catch (Exception $e) {
