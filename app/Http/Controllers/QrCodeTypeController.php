@@ -80,7 +80,7 @@ class QrCodeTypeController extends Controller
             }
             $qr = new SiteQrCodes();
             $link = $this->generateUniqueCode();
-            // QrCode::format('png')->size(200)->generate($link, 'images/codes/' . $link . '.png');
+            QrCode::format('png')->size(200)->generate($link, 'images/codes/' . $link . '.png');
             $qr->site_id = Auth::user()->site_id;
             $qr->image = ('images/codes/' . $link . '.png');
             $qr->qr_type_id = $site_qr_type;
@@ -228,21 +228,21 @@ class QrCodeTypeController extends Controller
 
             $result = SiteQrCodes::where('site_id', Auth::user()->site_id);
             $count = $result->count();
-            if ($count <= 0) {
-                $list = QrCodeType::get();
-                foreach ($list as $key => $value) {
-                    $qr = new SiteQrCodes();
-                    $link = $this->generateUniqueCode();
-                    QrCode::format('png')->size(200)->generate($link, 'images/codes/' . $link . '.png');
-                    $qr->site_id = Auth::user()->site_id;
-                    $qr->image = ('images/codes/' . $link . '.png');
-                    $qr->qr_type_id = $value->id;
-                    $qr->qr_code = $link;
-                    $qr->save();
-                }
-                $result = SiteQrCodes::where('site_id', Auth::user()->site_id);
-                $count = $result->count();
-            }
+            // if ($count <= 0) {
+            //     $list = QrCodeType::get();
+            //     foreach ($list as $key => $value) {
+            //         $qr = new SiteQrCodes();
+            //         $link = $this->generateUniqueCode();
+            //         QrCode::format('png')->size(200)->generate($link, 'images/codes/' . $link . '.png');
+            //         $qr->site_id = Auth::user()->site_id;
+            //         $qr->image = ('images/codes/' . $link . '.png');
+            //         $qr->qr_type_id = $value->id;
+            //         $qr->qr_code = $link;
+            //         $qr->save();
+            //     }
+            //     $result = SiteQrCodes::where('site_id', Auth::user()->site_id);
+            //     $count = $result->count();
+            // }
             if ($count > 0) {
                 return response()->json(['status' => 'success', 'data' => $count]);
             } else {
@@ -267,7 +267,7 @@ class QrCodeTypeController extends Controller
                     @unlink($path);
                 }
                 $link = $this->generateUniqueCode();
-                // QrCode::format('png')->size(200)->generate($link, 'images/codes/' . $link . '.png');
+                 QrCode::format('png')->size(200)->generate($link, 'images/codes/' . $link . '.png');
                 $screenQr->image = ('images/codes/' . $link . '.png');
                 $screenQr->qr_code = $link;
 

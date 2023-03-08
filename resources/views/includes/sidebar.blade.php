@@ -318,8 +318,24 @@ $site = \App\Models\Site::where('id', Auth::user()->site_id)->first();
 
                     </li>
                     <li class="slide">
-                                <a class="side-menu__item" data-bs-toggle="slide" href="/view/site/qr/list"><i
-                                    class="side-menu__icon fe fe-user"></i><span class="side-menu__label">Site Qr codes</span></a>
+
+                        <a class="side-menu__item" data-bs-toggle="slide" href="javascript:void(0)"><i
+                                class="side-menu__icon fe fe-calendar"></i><span
+                                class="side-menu__label">Site Qr codes</span><i
+                                class="angle fe fe-chevron-right"></i></a>
+
+                        <ul class="slide-menu">
+
+                            <li><a href="{{ url('/view/site/qr/list') }}" class="slide-item"> Site Qr List</a></li>
+
+
+
+                            <li><a href="{{url('/add/site/qr/code')}}" class="slide-item"> Site Qr
+                                    add</a></li>
+
+
+
+                        </ul>
 
                     </li>
                     
