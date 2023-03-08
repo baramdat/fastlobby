@@ -123,6 +123,8 @@ Route::delete('/delete/qr/code/type/{id}', [QrCodeTypeController::class,'deleteQ
 
 Route::get('/site/qr/count', [QrCodeTypeController::class,'siteQrCount']);
 Route::get('/qr/code/genrate/list', [QrCodeTypeController::class, 'generateList']);
+Route::delete('/site/qr/delete/{id}', [QrCodeTypeController::class,'deleteSiteQrCode']);
+Route::post('/generate/site/qr/{id}', [QrCodeTypeController::class,'regenerateQrCode']);
 
 
 // add screen

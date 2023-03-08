@@ -55,97 +55,113 @@
 
 
 
-        <!-- ROW -->
-
-        <div class="row">
 
 
 
-            <div class="col-lg-12">
+        <div class="col-lg-10">
 
-                <div class="card">
+            <div class="card">
 
-                    <div class="card-body">
+                <div class="card-body">
 
-                        <form action="" id="add_user">
+                    <form action="" id="add_user">
 
-                            @csrf
+                        @csrf
 
-                            <div class="row">
+                        <div class="row">
 
-                                <div class="col-lg-6">
 
-                                    <div class="form-group">
 
-                                        <label for="exampleInputname" class="form-label mb-0">Name: <span
-                                                class="text-danger">*</span> </label>
+                            <div class="form-group form-group col-lg-6 col-md-6 col-sm-12">
 
-                                        <input type="text" class="form-control" id="name" name="name" value="{{$screen->name}}" required
-                                            placeholder="Enter name of screen">
-                                            <input type="hidden"  id="id" name="id" value="{{$screen->id}}">
+                                <label for="exampleInputname" class="form-label mb-0">Name: <span
+                                        class="text-danger">*</span> </label>
+
+                                <input type="text" class="form-control" id="name" name="name"
+                                    value="{{ $screen->name }}" required placeholder="Enter name of screen">
+                                <input type="hidden" id="id" name="id" value="{{ $screen->id }}">
+                            </div>
+
+
+
+                        </div>
+                        <div class="row">
+                            <h3>Images OR Videos</h3>
+                            @foreach ($videos as $vd)
+                                <div class="form-group form-group col-lg-4 col-md-4 col-sm-12 checkbox form-check">
+                                    <div class="card bg-light text-dark" style="max-height: 200px">
+                                        <div class="card-body">
+                                            <input class="form-check-input position-static" id="videos" name="videos[]"
+                                                type="checkbox"
+                                                {{ in_array($vd->name, json_decode($screen->videos)) ? 'checked' : '' }}
+                                                value="{{ $vd->name }}" />
+                                            <label class="form-check-label" for="gridCheck">
+                                                {{ $vd->name }}
+                                            </label>
+                                            @if (str_contains(strtoupper($vd->name), '.MP4') ||
+                                                    str_contains(strtoupper($vd->name), '.MOV') ||
+                                                    str_contains(strtoupper($vd->name), '.WMV') ||
+                                                    str_contains(strtoupper($vd->name), '.FLV') ||
+                                                    str_contains(strtoupper($vd->name), '.AVI') ||
+                                                    str_contains(strtoupper($vd->name), '.AVCHD') ||
+                                                    str_contains(strtoupper($vd->name), '.WebM') ||
+                                                    str_contains(strtoupper($vd->name), '.MKV'))
+                                                <video width="180" height="120">
+                                                    <source src="{{ asset('/uploads/files/videos/') . '/' . $vd->name }}"
+                                                        type="video/mp4">
+                                                </video>
+                                            @else
+                                                <img src="{{ asset('uploads/files/videos') . '/' . $vd->name }}"
+                                                    alt="">
+                                            @endif
+                                        </div>
                                     </div>
-
                                 </div>
-
-                            </div>
-                            <div class="row">
-                                <div class="col-12 col-xs-12 col-md-6">
-                                    <h3>Videos</h3>
-                                    @foreach ($videos as $vd)
-                                        <div class="form-group">
-                                            {{-- <label
-                                                class="control-label col-9 col-xs-9 col-sm-7 col-lg-6">{{ $vd->name }}</label> --}}
-                                            <div class="col-3 col-xs-3 col-sm-5 checkbox form-check">
-                                                <input class="form-check-input position-static" id="videos" name="videos[]" type="checkbox" {{in_array($vd->name,json_decode($screen->videos))? 'checked': ''}} 
-                                                    value="{{ $vd->name }}" />
-                                                    <label class="form-check-label" for="gridCheck">
-                                                        {{ $vd->name }}
-                                                      </label>
-                                            </div>
+                            @endforeach
+                        </div>
+                        <div class="row">
+                            <h3>Qr Codes</h3>
+                            @foreach ($qrs as $qr)
+                                <div class="form-group form-group col-lg-3 col-md-3 col-sm-12  checkbox form-check">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <input class="form-check-input position-static" id="qrs" name="qrs[]"
+                                                type="checkbox"
+                                                {{ in_array($qr->id, json_decode($screen->qrs_codes)) ? 'checked' : '' }}
+                                                value="{{ $qr->id }}" />
+                                            <label class="form-check-label" for="gridCheck">
+                                                {{ ucwords($qr->QrType->name) }}
+                                            </label>
                                         </div>
-                                    @endforeach
+                                    </div>
                                 </div>
-                                <div class="col-12 col-xs-12 col-md-6">
-                                    <h3>Qr Codes</h3>
-                                    @foreach ($qrs as $qr)
-                                        <div class="form-group">
-                                            {{-- <label
-                                                class="control-label col-9 col-xs-9 col-sm-7 col-lg-6">{{ $qr->name }}</label> --}}
-                                            <div class="col-3 col-xs-3 col-sm-5 checkbox form-check">
-                                                <input class="form-check-input position-static"  id="qrs" name="qrs[]" type="checkbox" {{in_array($qr->id,json_decode($screen->qrs_codes))? 'checked': ''}}
-                                                    value="{{ $qr->id }}" />
-                                                    <label class="form-check-label" for="gridCheck">
-                                                        {{ $qr->name }}
-                                                      </label>
-                                            </div>
-                                        </div>
-                                    @endforeach
+                            @endforeach
 
-                                </div>
-                            </div>
-
-                            <div class="card-footer text-end">
-
-                                <button type="submit" class="btn btn-primary btnSubmit" id="btnSubmit"> <i
-                                        class="fa fa-spinner fa-pulse" style="display: none;"></i>
-
-                                    Save</button>
-
-                                <!-- <input type="button" class="btn btn-danger my-1" value="Cancel"> -->
-
-                            </div>
-
-                        </form>
-
-                    </div>
+                        </div>
 
 
+                        <div class="card-footer text-end">
+
+                            <button type="submit" class="btn btn-primary btnSubmit" id="btnSubmit"> <i
+                                    class="fa fa-spinner fa-pulse" style="display: none;"></i>
+
+                                Save</button>
+
+                            <!-- <input type="button" class="btn btn-danger my-1" value="Cancel"> -->
+
+                        </div>
+
+                    </form>
 
                 </div>
+
+
 
             </div>
 
         </div>
+
+
 
         <!-- ROW END -->
 

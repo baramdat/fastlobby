@@ -3,7 +3,7 @@
 
 
 @section('title')
-   Site Qr List
+    Site Qr List
 @endsection
 
 
@@ -38,6 +38,9 @@
                     </ol>
 
                 </div>
+                <a role="button" class="btn btn-dealer" id="addQrCode" href="javascript:void(0)">
+
+                    <span class="fa fa-qrcode"></span>  NEW QR</a>
             @endif
 
         </div>
@@ -52,17 +55,19 @@
                 <div class="card">
 
                     <div class="card-header  mx-1">
+                        <div class="row">
+                            <div class="media">
 
-                        <div class="media">
-
-                            <div class="media-body">
-
-                                <h6 class="mb-0 mt-1 text-muted">Site Qr Codes</h6>
-
+                                <div class="media-body">
+    
+                                    <h6 class="mb-0 mt-1 text-muted">Site Qr Codes</h6>
+                                    
+                                </div>
+                                
+    
                             </div>
-
+                            
                         </div>
-
                     </div>
 
                     <div class="card-body pt-4">
@@ -92,6 +97,11 @@
 
 
                                                             Qr Code</th>
+                                                        <th class="bg-transparent border-bottom-0">
+
+
+
+                                                            Actions</th>
 
                                                     </tr>
 
@@ -362,7 +372,133 @@
                 }
 
             }
+            $(document).on('click', '.btnRegenerate', function(e) {
+                // 
+                var id = $(this).attr('id')
+                $.ajax({
 
+                    url: '/api/generate/site/qr/' + id,
+
+                    type: "post",
+
+                    dataType: "JSON",
+                    beforeSend: function() {
+
+                        $(e).attr('disabled', true);
+
+                    },
+
+                    complete: function() {
+
+                        $(e).attr('disabled', false);
+
+                    },
+
+                    success: function(response) {
+
+                        if (response["status"] == "fail") {
+                            toastr.error('Failed', response["msg"])
+                        } else if (response["status"] ==
+                            "success") {
+                            toastr.success('Success', response["msg"])
+                            dataCount()
+
+                        }
+
+                    },
+
+                    error: function(error) {
+
+                        // console.log(error);
+
+                    },
+
+                    async: false
+
+                });
+                
+            });
+
+            $(document).on('click', '.btnDelete', function(e) {
+
+                var id = $(this).attr('id')
+
+                Swal.fire({
+
+                        title: "Are you sure?",
+
+                        text: "You will not be able to recover this screen!",
+
+                        type: "warning",
+
+                        buttons: true,
+
+                        confirmButtonColor: "#ff5e5e",
+
+                        confirmButtonText: "Yes, delete it!",
+
+                        closeOnConfirm: false,
+
+                        dangerMode: true,
+
+                        showCancelButton: true
+
+                    })
+
+                    .then((deleteThis) => {
+
+                        if (deleteThis.isConfirmed) {
+
+                            $.ajax({
+
+                                url: '/api/site/qr/delete/' + id,
+
+                                type: "delete",
+
+                                dataType: "JSON",
+
+                                success: function(response) {
+
+                                    if (response["status"] == "fail") {
+
+                                        Swal.fire("Failed!",
+                                            "Failed to delete screen.",
+
+                                            "error");
+
+                                    } else if (response["status"] ==
+                                        "success") {
+
+                                        Swal.fire("Deleted!",
+                                            "Screen has been deleted.",
+
+                                            "success");
+
+                                        dataCount()
+
+                                    }
+
+                                },
+
+                                error: function(error) {
+
+                                    // console.log(error);
+
+                                },
+
+                                async: false
+
+                            });
+
+                        } else {
+
+                            Swal.close();
+
+                        }
+
+                    });
+
+            });
         });
     </script>
 @endsection

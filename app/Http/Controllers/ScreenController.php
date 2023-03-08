@@ -17,7 +17,8 @@ class ScreenController extends Controller
     public function index()
     {
         $videos = Videos::where('site_id', Auth::user()->site_id)->get();
-        $qrs = QrCodeType::get();
+        $qrs = SiteQrCodes::where('site_id', Auth::user()->site_id)->get();
+
         return view('templates.screens.add', compact('videos', 'qrs'));
     }
 
@@ -100,9 +101,10 @@ class ScreenController extends Controller
                      ' . ucwords($usr->name) . '
                      </td>
                      <td>
-                     
+                     <div class="btn-group btn-group-sm" role="group">
                          
-                         <a href="/view/screen/data/'.$usr->unique_code.'" target="_blank">View</a>
+                         <a  class="btn btn-success text-white" href="/view/screen/data/' . $usr->unique_code . '" target="_blank">View</a>
+                         </div>
                    
                      </td>
                      <td>
@@ -121,24 +123,24 @@ class ScreenController extends Controller
         }
     }
 
-    public function screenView($id){
-        $screen=Screens::where('unique_code',$id)->first();
-        $qr_code=SiteQrCodes::whereIn('qr_type_id',json_decode($screen->qrs_codes))->get();
-        $arr=json_decode($screen->videos);
+    public function screenView($id)
+    {
+        $screen = Screens::where('unique_code', $id)->first();
+        $qr_code = SiteQrCodes::whereIn('id', json_decode($screen->qrs_codes))->get();
+        $arr = json_decode($screen->videos);
         if ($arr) {
-            return view('templates/screens/screen_view', ['video' => $arr[0], 'array' => $arr,'qr_code'=>$qr_code]);
+            return view('templates/screens/screen_view', ['video' => $arr[0], 'array' => $arr, 'qr_code' => $qr_code]);
         } else {
             return view('templates.404');
         }
-        
     }
     public function editScreen($id)
     {
         $screen = Screens::where('id', $id)->first();
         $videos = Videos::where('site_id', Auth::user()->site_id)->get();
-        $qrs = QrCodeType::get();
+        $qrs = SiteQrCodes::where('site_id', Auth::user()->site_id)->get();
         if ($screen) {
-            return view('templates/screens/edit', compact('screen','videos','qrs'));
+            return view('templates/screens/edit', compact('screen', 'videos', 'qrs'));
         } else {
             return view('templates.404');
         }
@@ -147,25 +149,33 @@ class ScreenController extends Controller
     public function updateScreen(Request $request)
     {
         try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required',
+                'videos' => 'required',
+                'qrs' => 'required',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['status' => 'fail', 'msg' => $validator->errors()->all()]);
+            }
             $screen = Screens::where('id', $request->id)->first();
             if ($screen) {
-
                 $screen->name = $request->name;
                 $screen->videos = json_encode($request->videos);
                 $screen->qrs_codes = json_encode($request->qrs);
-                
-            if ($screen->save()) {
-                return response()->json([
-                    'status' => 'success',
-                    'msg' => 'Screen Updated Successfully'
-                ], 200);
-            } else {
-                return response()->json([
-                    'status' => 'fail',
-                    'msg' => 'something went wrong'
-                ], 200);
+
+                if ($screen->save()) {
+                    return response()->json([
+                        'status' => 'success',
+                        'msg' => 'Screen Updated Successfully'
+                    ], 200);
+                } else {
+                    return response()->json([
+                        'status' => 'fail',
+                        'msg' => 'something went wrong'
+                    ], 200);
+                }
             }
-        }
         } catch (Exception $e) {
             return response()->json([
                 'status' => 'fail',
@@ -174,7 +184,8 @@ class ScreenController extends Controller
         }
     }
 
-    public function deleteScreen($id){
+    public function deleteScreen($id)
+    {
         $screen = Screens::find($id);
 
         $screen->delete();

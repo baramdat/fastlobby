@@ -124,6 +124,18 @@ class QrCodeTypeController extends Controller
         return response()->json(['status' => 'fail', 'msg' => 'failed to delete Qr code']);
     }
 
+    public function deleteSiteQrCode($id)
+    {
+        $siteQr = SiteQrCodes::find($id);
+        $path = public_path() . '/' . $siteQr->image;
+        if (file_exists($path)) {
+            @unlink($path);
+        }
+        if ($siteQr->delete()) {
+            return response()->json(['status' => 'success', 'msg' => 'Qr code is Deleted']);
+        }
+        return response()->json(['status' => 'fail', 'msg' => 'failed to delete Qr code']);
+    }
     public function generateList(Request $request)
     {
 
@@ -149,7 +161,13 @@ class QrCodeTypeController extends Controller
                             ' . $qr . '
                         </td>
 
-                        
+                        <td>
+                         <div class="btn-group btn-group-sm" role="group">
+                         <a   class="btn btn-warning btnRegenerate" id="' . $site->id . '">Regenerate</a>
+                         
+                             <a  class="btn btn-danger text-white btnDelete" id="' . $site->id . '">Delete</a>
+                         </div>
+                     </td>
                     </tr>
                 ';
             }
@@ -193,6 +211,39 @@ class QrCodeTypeController extends Controller
         }
     }
 
+    public function regenerateQrCode($id)
+    {
+        try {
+            $screenQr = SiteQrCodes::where('id', $id)->first();
+            if ($screenQr) {
+                $path = public_path() . '/' . $screenQr->image;
+                if (file_exists($path)) {
+                    @unlink($path);
+                }
+                $link = $this->generateUniqueCode();
+                // QrCode::format('png')->size(200)->generate($link, 'images/codes/' . $link . '.png');
+                $screenQr->image = ('images/codes/' . $link . '.png');
+                $screenQr->qr_code = $link;
+
+                if ($screenQr->save()) {
+                    return response()->json([
+                        'status' => 'success',
+                        'msg' => 'New Qr Code Generated Successfully'
+                    ], 200);
+                } else {
+                    return response()->json([
+                        'status' => 'fail',
+                        'msg' => 'something went wrong'
+                    ], 200);
+                }
+            }
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => 'fail',
+                'msg' => $e->getMessage()
+            ], 200);
+        }
+    }
     public function generateUniqueCode()
 
     {
