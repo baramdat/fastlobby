@@ -14,7 +14,7 @@ class AddSiteIdQrCodeTypeTable extends Migration
     public function up()
     {
         Schema::table('qr_code_types', function (Blueprint $table) {
-            $table->integer('site_id')->nullable();
+            $table->integer('site_id')->default(0);
         });
     }
 
