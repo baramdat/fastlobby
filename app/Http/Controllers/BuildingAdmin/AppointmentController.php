@@ -79,7 +79,6 @@ class AppointmentController extends Controller
                 $receiverNumber = $request->phone;
                 $url = route('detail', ['id' => $visitor_id]);
                 $message = 'You have been invited to visit ' . $siteName . ' please click this link and check the invitation details link is:' . $url . '';
-
                 $client = new Client($account_sid, $auth_token);
                 $client->messages->create($receiverNumber, [
                     'from' => $twilio_number,

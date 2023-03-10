@@ -1329,10 +1329,7 @@
                                             <br><br><br>
 
                                             <a type="button" class="btn btn-primary detailButton" href="{{url('/external/visitor/detail/'.$data['id'])}}" style="text-decoration:none;padding:10px;background:#006f94;color:white;"> See details</a>
-
                                         </p>
-
-                                
 
                                         <p style="padding-top:8px; padding-bottom:15px; font-family: 'Lato', sans-serif;">
 

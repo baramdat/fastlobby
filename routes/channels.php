@@ -31,3 +31,7 @@ Broadcast::channel('chat-messages.{id}' , function($user , $id){
     // $id = explode("-",$id);
     return (int) $user->id === (int) $id;
 });
+Broadcast::channel('request_new_qr.{id}' , function($id){
+
+    return  $id;
+});

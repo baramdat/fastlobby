@@ -232,7 +232,7 @@
                 filterSearch = $("#search").val()
                 filterDate = $("#filterDate").val();
                 filterPhone = $("#filterPhone").val();
-
+                filterStatus= $("#filterStatus").val();
                 filterLength = 10;
             }
             lockerCount()

@@ -24,6 +24,8 @@ use Illuminate\Http\Request;
 
 use App\Mail\externalVisitor;
 
+use App\Events\QrNotification;
+
 use App\Mail\visitorConfirmation;
 
 use App\Models\WalkinAppointment;
@@ -37,7 +39,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 
 use Illuminate\Support\Facades\Crypt;
-
 use Illuminate\Support\Facades\Validator;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
@@ -89,11 +90,11 @@ class AppointmentController extends Controller
                 $img_url = ('images/codes/' . $ap->unique_code . '.png');
 
                 DB::table('appointments')->where('id', $ap->id)->update(["qr_code" => $img_url]);
-                
+
                 $data = [];
                 $data["visitor_name"] = $ap->name;
                 $data["site"] = $site;
-                $data["image_url"] = asset($ap->qr_code); 
+                $data["image_url"] = asset($ap->qr_code);
                 $data["id"] = $visitor_id;
                 Mail::to($ap->email)->send(new visitorConfirmation($data));
 
@@ -105,7 +106,7 @@ class AppointmentController extends Controller
                 $site = Site::where('id', $client->site->id)->first();
                 $siteName = $site->name;
                 $receiverNumber = $request->phone;
-                $url = route('detail',['id'=>$visitor_id]);
+                $url = route('detail', ['id' => $visitor_id]);
                 $message = 'You have been invited to visit ' . $siteName . ' please click this link and check the invitation details link is:' . $url . '';
 
                 $client = new Client($account_sid, $auth_token);
@@ -136,7 +137,7 @@ class AppointmentController extends Controller
     }
 
 
-    
+
 
     public function externalAppointmentCreate(Request $request)
 
@@ -158,48 +159,50 @@ class AppointmentController extends Controller
             if ($validator->fails()) {
 
                 return response()->json(['status' => 'fail', 'msg' => $validator->errors()->all()]);
-
             }
 
 
 
             $today = Carbon::now();
 
-            $app = new WalkinAppointment();
+            $app = new Appointment();
 
             $app->name = $request->name;
             $app->email = $request->email;
             $app->phone = $request->phone;
 
-            $app->gender = $request->gender;
+            // $app->gender = $request->gender;
 
             $app->tenant_id = $request->tenant;
-
-            $app->address = $request->address;
+            $app->date = $today;
+            $app->visiting_address = $request->address;
 
             $app->site_id = $request->site_id;
-
+            $app->type = 'walkin';
             $app->created_at = $today;
-
+            $app->unique_code = $this->generateUniqueCode();
             $app->save();
 
             if ($app) {
 
-                $ap = WalkinAppointment::find($app->id);
+                $ap = Appointment::find($app->id);
 
                 $client = User::find($ap->tenant_id);
 
                 $site = $client->site->name;
+                $link = $ap->unique_code;
+                $user = User::where('id', $app->tenant_id)->first();
+                QrCode::format('png')->size(200)->generate($link, 'images/codes/' . $ap->unique_code . '.png');
+                $img_url = ('images/codes/' . $ap->unique_code . '.png');
 
-                $user = User::where('id',$app->tenant_id)->first();
-
-                if(isset($user->email)){
+                DB::table('appointments')->where('id', $ap->id)->update(["qr_code" => $img_url]);
+                if (isset($user->email)) {
 
                     $data = [];
 
                     $data["visitor_name"] = $ap->name;
 
-                    $data["tenant_name"] = $user->first_name." ".$user->last_name;
+                    $data["tenant_name"] = $user->first_name . " " . $user->last_name;
 
                     $data["site"] = $site;
 
@@ -207,13 +210,11 @@ class AppointmentController extends Controller
 
                     $data["id"] = $ap->id;
 
-                    Mail::to($user->email)->send(new externalVisitor($data)); 
-                    
-
+                    Mail::to($user->email)->send(new externalVisitor($data));
                 }
 
-                if(isset($user->phone)){
-                    
+                if (isset($user->phone)) {
+
                     //twillo sms
                     $account_sid = config('services.twilio.sid');
                     $auth_token = config('services.twilio.token');
@@ -221,20 +222,19 @@ class AppointmentController extends Controller
 
                     $siteName = $client->site->name;
                     $receiverNumber = $user->phone;
-                    $url = env('APP_URL').'/external/visitor/detail/'.$app->id;
-                    $message =  "You have a new visitor ".$ap->name." arrived at the door of site ".$siteName.". Please click link to approve or decline the appointment. ".$url;
+                    $url = env('APP_URL') . '/external/visitor/detail/' . $app->id;
+                    $message =  "You have a new visitor " . $ap->name . " arrived at the door of site " . $siteName . ". Please click link to approve or decline the appointment. " . $url;
 
                     $client = new Client($account_sid, $auth_token);
                     $client->messages->create($receiverNumber, [
                         'from' => $twilio_number,
                         'body' => $message
-                    ]);                    
+                    ]);
                 }
-                    return response()->json(['status' => 'success', 'msg' => 'Appointment request has been sent']);
+                return response()->json(['status' => 'success', 'msg' => 'Appointment request has been sent']);
             } else {
                 return response()->json(['status' => 'fail', 'msg' => 'Failed to request an appointment']);
             }
-
         } catch (Exception $e) {
 
             return response()->json([
@@ -244,77 +244,74 @@ class AppointmentController extends Controller
                 'msg' => $e->getMessage()
 
             ], 200);
-
         }
-
     }
-    public function requestNewQr($id){
-        try{
-            $app= Appointment::where('unique_code',$id)->first();
-        if ($app) {
+    public function requestNewQr($id)
+    {
+        try {
+            $app = Appointment::where('unique_code', $id)->first();
 
-            // $client = User::find($app->tenant_id);
+            if ($app) {
+                $app->status = 'pending';
+                $app->save();
+                // $client = User::find($app->tenant_id);
 
-             $site =Site::find($app->site_id);
+                $site = Site::find($app->site_id);
 
-            $user = User::where('id',$app->tenant_id)->first();
+                $user = User::where('id', $app->tenant_id)->first();
 
-            if(isset($user->email)){
+                if (isset($user->email)) {
 
-                $data = [];
+                    $data = [];
 
-                $data["visitor_name"] = $app->name;
+                    $data["visitor_name"] = $app->name;
 
-                $data["tenant_name"] = $user->first_name." ".$user->last_name;
+                    $data["tenant_name"] = $user->first_name . " " . $user->last_name;
 
-                $data["site"] = $site->name;
+                    $data["site"] = $site->name;
 
-                $data["image_url"] = asset($app->qr_code);
+                    $data["image_url"] = asset($app->qr_code);
 
-                $data["id"] = $app->id;
+                    $data["id"] = $app->id;
 
-                Mail::to($user->email)->send(new externalVisitorQrCode($data)); 
-                
+                    Mail::to($user->email)->send(new externalVisitorQrCode($data));
+                }
 
+                if (isset($user->phone)) {
+
+                    //twillo sms
+                    $account_sid = config('services.twilio.sid');
+                    $auth_token = config('services.twilio.token');
+                    $twilio_number = config('services.twilio.phone');
+
+                    $siteName = $site->name;
+                    $receiverNumber = $user->phone;
+                    $url = env('APP_URL') . '/external/visitor/qr/request/' . $app->id;
+                    $message =  "You have a new visitor " . $app->name . " arrived at the door of site " . $siteName . ". Please click link to approve or decline the appointment. " . $url;
+
+                    $client = new Client($account_sid, $auth_token);
+                    $client->messages->create($receiverNumber, [
+                        'from' => $twilio_number,
+                        'body' => $message
+                    ]);
+                }
+                return redirect(url('appointment/detail/').'/'.$id);
+            } else {
+                return response()->json(['status' => 'fail', 'msg' => 'Failed to request an appointment']);
             }
+        } catch (Exception $e) {
 
-            if(isset($user->phone)){
-                
-                //twillo sms
-                $account_sid = config('services.twilio.sid');
-                $auth_token = config('services.twilio.token');
-                $twilio_number = config('services.twilio.phone');
+            return response()->json([
 
-                $siteName = $site->name;
-                $receiverNumber = $user->phone;
-                $url = env('APP_URL').'/external/visitor/qr/request/'.$app->id;
-                $message =  "You have a new visitor ".$app->name." arrived at the door of site ".$siteName.". Please click link to approve or decline the appointment. ".$url;
+                'status' => 'fail',
 
-                $client = new Client($account_sid, $auth_token);
-                $client->messages->create($receiverNumber, [
-                    'from' => $twilio_number,
-                    'body' => $message
-                ]);                    
-            }
-                return redirect(url()->previous());
-        } else {
-            return response()->json(['status' => 'fail', 'msg' => 'Failed to request an appointment']);
+                'msg' => $e->getMessage()
+
+            ], 200);
         }
-
-    } catch (Exception $e) {
-
-        return response()->json([
-
-            'status' => 'fail',
-
-            'msg' => $e->getMessage()
-
-        ], 200);
-
-    }
     }
 
-     //appointment detail page view
+    //appointment detail page view
     public function detailPage($id, Request $req)
     {
 
@@ -326,19 +323,20 @@ class AppointmentController extends Controller
             return view('templates/error');
         }
     }
-    
+
 
     //add qr to sites
 
-    public function addQr(Request $request){
+    public function addQr(Request $request)
+    {
 
-        try{
+        try {
 
             $sites = Site::all();
 
-            if(isset($sites) && sizeof($sites)){
+            if (isset($sites) && sizeof($sites)) {
 
-                foreach($sites as $site){
+                foreach ($sites as $site) {
 
                     $site_id = Crypt::encryptString($site->id);
 
@@ -351,32 +349,23 @@ class AppointmentController extends Controller
                     if ($site->qr_code == NULL) {
 
                         DB::table('sites')->where('id', $site->id)->update(["qr_code" => $img_url]);
-
                     }
 
-                          return 'Done';
-
+                    return 'Done';
                 }
-
-            }else{
+            } else {
 
                 return view('templates.error');
-
             }
+        } catch (Exception $e) {
 
+            return view('templates.error');
         }
-
-        catch(Exception $e){
-
-            return view('templates.error'); 
-
-        }
-
     }
 
-    
 
-    
+
+
 
     public function guardRecentAppointment()
 
@@ -391,7 +380,6 @@ class AppointmentController extends Controller
             $clients = User::whereHas('roles', function ($q) {
 
                 $q->where('name', 'Tenant');
-
             })->where('site_id', $site->site->id)->get();
 
             if ($clients) {
@@ -399,76 +387,63 @@ class AppointmentController extends Controller
                 foreach ($clients as $client) {
 
                     $clientIds[] = $client->id;
-
                 }
 
                 $apps = Appointment::whereIn('tenant_id', $clientIds)->whereDate('created_at', $today)->orderBy('id', 'DESC')->get();
 
-                if($apps){
+                if ($apps) {
 
-                     $html = "";
+                    $html = "";
 
-                    foreach($apps as $key => $app){
+                    foreach ($apps as $key => $app) {
 
-                        if($app->status=="pending"){
+                        if ($app->status == "pending") {
 
-                            $status = '<span class="badge bg-warning text-white p-1" style="border-radius:10px">'.ucwords($app->status).'</span>';
-
-                        }elseif($app->status=="check_in"){
+                            $status = '<span class="badge bg-warning text-white p-1" style="border-radius:10px">' . ucwords($app->status) . '</span>';
+                        } elseif ($app->status == "check_in") {
 
                             $status = '<span class="badge bg-primary text-white p-1" style="border-radius:10px">Checked In</span>';
+                        } elseif ($app->status == "decline") {
 
-                        }elseif($app->status=="decline"){
-
-                            $status = '<span class="badge bg-danger text-white p-1" style="border-radius:10px">'.ucwords($app->status).'</span>';
-
+                            $status = '<span class="badge bg-danger text-white p-1" style="border-radius:10px">' . ucwords($app->status) . '</span>';
                         }
 
-                        $html.='><tr>
+                        $html .= '><tr>
 
-                        <td><b>'.ucwords($app->user->first_name).' '.ucwords($app->user->last_name).'</b></td>
+                        <td><b>' . ucwords($app->user->first_name) . ' ' . ucwords($app->user->last_name) . '</b></td>
 
-                        <td><b>'.ucwords($app->user->email).'</b></td>
+                        <td><b>' . ucwords($app->user->email) . '</b></td>
 
-                        <td><b>'.ucwords($app->name).'</b></td>
+                        <td><b>' . ucwords($app->name) . '</b></td>
 
-                        <td><b>'.ucwords($app->email).'</b></td>
+                        <td><b>' . ucwords($app->email) . '</b></td>
 
-                        <td><b>'. date('M d,Y', strtotime($app->date)) .'</b></td>
+                        <td><b>' . date('M d,Y', strtotime($app->date)) . '</b></td>
 
-                        <td><b>'. strtoupper($app->time) .'</b></td>
+                        <td><b>' . strtoupper($app->time) . '</b></td>
 
-                        <td><b>'.$status.'</b></td>
+                        <td><b>' . $status . '</b></td>
 
                         </tr>';
-
                     }
 
-                    return response()->json(['status' => 'success', 'data'=> $html]);
-
+                    return response()->json(['status' => 'success', 'data' => $html]);
                 }
-
-                
-
             } else {
 
                 return response()->json(['status' => 'fail', 'msg' => 'No data found!']);
-
             }
-
         } catch (Exception $e) {
 
-            return response()->json(['status' => 'fail', 'msg' => $e->getMessage(),'line'=>$e->getLine()]);
-
+            return response()->json(['status' => 'fail', 'msg' => $e->getMessage(), 'line' => $e->getLine()]);
         }
-
     }
 
-    
 
-    
 
-    
+
+
+
 
     // count
 
@@ -497,7 +472,6 @@ class AppointmentController extends Controller
 
 
                 $result = $result->where('name', 'like', '%' . $filterSearch . '%');
-
             }
 
 
@@ -505,7 +479,6 @@ class AppointmentController extends Controller
             if (isset($filterStatus) &&  $filterStatus != 'all') {
 
                 $result = $result->where('status', $filterStatus);
-
             }
 
 
@@ -515,7 +488,6 @@ class AppointmentController extends Controller
 
 
                 $result = $result->where('phone', $filterPhone);
-
             }
 
 
@@ -527,13 +499,10 @@ class AppointmentController extends Controller
             if ($count > 0) {
 
                 return response()->json(['status' => 'success', 'data' => $count]);
-
             } else {
 
                 return response()->json(['status' => 'fail', 'msg' => 'No Data Found']);
-
             }
-
         } catch (Exception $e) {
 
             return response()->json([
@@ -543,9 +512,7 @@ class AppointmentController extends Controller
                 'msg' => $e->getMessage()
 
             ], 200);
-
         }
-
     }
 
     //external appointment trhough unique code
@@ -587,35 +554,31 @@ class AppointmentController extends Controller
 
     {
 
-        $visitor = WalkinAppointment::find($id);
-
-        if ($visitor) {
-
-                $client = User::where('id', $visitor->tenant_id)->first();
-
-                return view('templates.external.visitor_approval', ['visitor' => $visitor, 'client' => $client]);
-
-            } else {
-
-            return view('templates.error');
-
-        }
-
-    }
-
-    public function externalVistorRequest($id){
         $visitor = Appointment::find($id);
 
         if ($visitor) {
 
-                $client = User::where('id', $visitor->tenant_id)->first();
+            $client = User::where('id', $visitor->tenant_id)->first();
 
-                return view('templates.external.visitor_qr_request', ['visitor' => $visitor, 'client' => $client]);
-
-            } else {
+            return view('templates.external.visitor_approval', ['visitor' => $visitor, 'client' => $client]);
+        } else {
 
             return view('templates.error');
+        }
+    }
 
+    public function externalVistorRequest($id)
+    {
+        $visitor = Appointment::find($id);
+
+        if ($visitor) {
+
+            $client = User::where('id', $visitor->tenant_id)->first();
+
+            return view('templates.external.visitor_qr_request', ['visitor' => $visitor, 'client' => $client]);
+        } else {
+
+            return view('templates.error');
         }
     }
 
@@ -628,7 +591,7 @@ class AppointmentController extends Controller
 
         try {
 
-            
+
             $filterSearch = $request->filterSearch;
 
             $filterLength = $request->filterLength;
@@ -644,42 +607,31 @@ class AppointmentController extends Controller
             $result = Appointment::query();
 
             $result = $result->where('tenant_id', Auth::user()->id);
-             
+
             if (isset($filterSearch) &&  $filterSearch != '') {
 
                 $result = $result->where('name', 'like', '%' . $filterSearch . '%');
-
             }
-
-
-
-
-
-
-
             if (isset($filterStatus) &&  $filterStatus != 'all') {
 
                 $result = $result->where('status', $filterStatus);
-
             }
-            if(isset($filterDate)&& $filterDate !=''){
-                $date=explode('-',$filterDate);
-                 $from=Carbon::createFromFormat('m/d/Y', trim($date[0]));
-                 $to=Carbon::createFromFormat('m/d/Y', trim($date[1]));
-                 if($from !=$to){
+            if (isset($filterDate) && $filterDate != '') {
+                $date = explode('-', $filterDate);
+                $from = Carbon::createFromFormat('m/d/Y', trim($date[0]));
+                $to = Carbon::createFromFormat('m/d/Y', trim($date[1]));
+                if ($from != $to) {
                     $result = $result->whereBetween('created_at', [$from, $to]);
-                 }else{
+                } else {
                     $today = \Carbon\Carbon::now()->format('Y-m-d');
                     $result = $result->whereDate('created_at', $today);
-                 }
-                
+                }
             }
-            
+
 
             if (isset($filterPhone) &&  $filterPhone != ' ') {
 
                 $result = $result->where('phone', $filterPhone);
-
             }
 
 
@@ -687,7 +639,7 @@ class AppointmentController extends Controller
             $i = 1;
 
             $appointments = $result->take($filterLength)->skip($request->offset)->orderBy('id', 'DESC')->get();
-            
+
             if (isset($appointments) && sizeof($appointments) > 0) {
 
                 $html = '';
@@ -697,16 +649,13 @@ class AppointmentController extends Controller
                     if ($value->status == "pending") {
 
                         $status = '<span class="badge bg-warning text-white p-1" style="border-radius:10px">' . ucwords($value->status) . '</span>';
-
                     } elseif ($value->status == "check_in") {
 
                         $status = '<span class="badge bg-primary  text-white p-1" style="border-radius:10px">Checked In</span>';
-
                     } elseif ($value->status == "decline") {
 
                         $status = '<span class="badge bg-danger  text-white p-1" style="border-radius:10px">' . ucwords($value->status) . '</span>';
-
-                    }else{
+                    } else {
                         $status = '<span class="badge bg-success  text-white p-1" style="border-radius:10px">Approved</span>';
                     }
 
@@ -754,7 +703,7 @@ class AppointmentController extends Controller
 
                                     <h6 class="mb-0 m-0 fs-14 ">
 
-                                    '. strtoupper($value->time) . '</h6>
+                                    ' . strtoupper($value->time) . '</h6>
 
                                 </td>
 
@@ -789,17 +738,13 @@ class AppointmentController extends Controller
                             </tr>
 
                         ';
-
                 }
 
                 return response()->json(['status' => 'success', 'rows' => $html]);
-
             } else {
 
                 return response()->json(['status' => 'fail', 'msg' => 'No Form Found!']);
-
             }
-
         } catch (Exception $e) {
 
             return response()->json([
@@ -809,17 +754,17 @@ class AppointmentController extends Controller
                 'msg' => $e->getMessage()
 
             ], 200);
-
         }
-
     }
 
 
 
     public function detail($id, Request $req)
     {
-
         $app = Appointment::where('unique_code', $id)->first();
+        if ($req->external == 1) {
+            event(new QrNotification($id));
+        }
         if ($app) {
             $client = User::find($app->tenant_id);
             return view('templates.appointment.register_visitor_detail', compact('client', 'app'));
@@ -830,21 +775,21 @@ class AppointmentController extends Controller
 
 
 
-      public function informClient(Request $request){
+    public function informClient(Request $request)
+    {
 
         try {
 
             $visitor = Appointment::find($request->id);
 
             $client = User::find($visitor->tenant_id);
-            Mail::send('templates.email.visitor_appointment_request', ['client'=>$client,'visitor'=>$visitor], function ($message) use ($client) {
+            Mail::send('templates.email.visitor_appointment_request', ['client' => $client, 'visitor' => $visitor], function ($message) use ($client) {
 
                 $message->to($client->email);
 
                 $message->subject('Guest Arrived');
 
                 $message->from(env('MAIL_FROM_ADDRESS'), 'Fastlobby');
-
             });
 
             $visitor->status = "check_in";
@@ -862,9 +807,9 @@ class AppointmentController extends Controller
 
 
 
-            $message = 'Your Guest ('.$visitor->name.') Has Arrived';
+            $message = 'Your Guest (' . $visitor->name . ') Has Arrived';
 
-            if($receiverNumber!=" "){
+            if ($receiverNumber != " ") {
 
 
 
@@ -872,156 +817,145 @@ class AppointmentController extends Controller
 
                 $client->messages->create($receiverNumber, [
 
-                    'from' => $twilio_number, 
+                    'from' => $twilio_number,
 
                     'body' => $message
 
                 ]);
-
             }
 
-            
 
-            return response()->json(['status'=>'success','msg'=>'Mail sent']);
-        }catch(\Exception $e){
-            return response()->json(['status'=>'fail','msg'=> $e->getMessage()]);
+
+            return response()->json(['status' => 'success', 'msg' => 'Mail sent']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'fail', 'msg' => $e->getMessage()]);
         }
-
-    } 
-
-    
-
-        //walkin count
-
-        public function walkinCount(Request $request)
-
-        {
-
-            try {
-
-                $filterSearch = $request->filterSearch;
-
-                $filterLength = $request->filterLength;
-
-                $filterStatus = $request->filterStatus;
-
-    
-
-                $result = WalkinAppointment::query();
-
-                $result = $result->where('tenant_id', Auth::user()->id);
-
-                if (isset($filterSearch) && $filterSearch != '') {
-
-    
-
-                    $result = $result->where('name', 'like', '%' . $filterSearch . '%');
-
-                }
-
-    
-
-    
-
-    
-
-                if (isset($filterStatus) &&  $filterStatus != 'all') {
-
-                    $result = $result->where('status', $filterStatus);
-
-                }
+    }
 
 
 
-    
+    //walkin count
 
-                $count = $result->count();
+    public function walkinCount(Request $request)
 
-                if ($count > 0) {
+    {
 
-                    return response()->json(['status' => 'success', 'data' => $count]);
+        try {
 
-                } else {
+            $filterSearch = $request->filterSearch;
 
-                    return response()->json(['status' => 'fail', 'msg' => 'No Data Found']);
+            $filterLength = $request->filterLength;
 
-                }
+            $filterStatus = $request->filterStatus;
 
-            } catch (Exception $e) {
 
-                return response()->json([
 
-                    'status' => 'fail',
+            $result = WalkinAppointment::query();
 
-                    'msg' => $e->getMessage()
+            $result = $result->where('tenant_id', Auth::user()->id);
 
-                ], 200);
+            if (isset($filterSearch) && $filterSearch != '') {
 
+
+
+                $result = $result->where('name', 'like', '%' . $filterSearch . '%');
             }
 
+
+
+
+
+
+
+            if (isset($filterStatus) &&  $filterStatus != 'all') {
+
+                $result = $result->where('status', $filterStatus);
+            }
+
+
+
+
+
+            $count = $result->count();
+
+            if ($count > 0) {
+
+                return response()->json(['status' => 'success', 'data' => $count]);
+            } else {
+
+                return response()->json(['status' => 'fail', 'msg' => 'No Data Found']);
+            }
+        } catch (Exception $e) {
+
+            return response()->json([
+
+                'status' => 'fail',
+
+                'msg' => $e->getMessage()
+
+            ], 200);
         }
-
-    
-
-    
-
-        // list
-
-        public function walkinVisitors(Request $request)
-
-        {
-
-            try {
-
-                $filterSearch = $request->filterSearch;
-
-                $filterLength = $request->filterLength;
-
-                $filterStatus = $request->filterStatus;
-
-                // $filterTitle=$request->filterTitle;
-
-                // $filterLength=$request->filterLength;
-
-                $result = WalkinAppointment::query();
-
-                $result = $result->where('tenant_id', Auth::user()->id);
-
-                if (isset($filterSearch) &&  $filterSearch != '') {
-
-                    $result = $result->where('name', 'like', '%' . $filterSearch . '%');
-
-                }
-
-    
-
-    
-
-    
-
-                if (isset($filterStatus) &&  $filterStatus != 'all') {
-
-                    $result = $result->where('status', $filterStatus);
-
-                }
-
-    
+    }
 
 
 
-                $i = 1;
 
-                $appointments = $result->take($filterLength)->skip($request->offset)->orderBy('id', 'DESC')->get();
 
-                if (isset($appointments) && sizeof($appointments) > 0) {
+    // list
 
-                    $html = '';
+    public function walkinVisitors(Request $request)
 
-                    foreach ($appointments as $value) {
+    {
 
-                        $visitor_id = Crypt::encryptString($value->id);
+        try {
 
-                        $html .= '
+            $filterSearch = $request->filterSearch;
+
+            $filterLength = $request->filterLength;
+
+            $filterStatus = $request->filterStatus;
+
+            // $filterTitle=$request->filterTitle;
+
+            // $filterLength=$request->filterLength;
+
+            $result = WalkinAppointment::query();
+
+            $result = $result->where('tenant_id', Auth::user()->id);
+
+            if (isset($filterSearch) &&  $filterSearch != '') {
+
+                $result = $result->where('name', 'like', '%' . $filterSearch . '%');
+            }
+
+
+
+
+
+
+
+            if (isset($filterStatus) &&  $filterStatus != 'all') {
+
+                $result = $result->where('status', $filterStatus);
+            }
+
+
+
+
+
+            $i = 1;
+
+            $appointments = $result->take($filterLength)->skip($request->offset)->orderBy('id', 'DESC')->get();
+
+            if (isset($appointments) && sizeof($appointments) > 0) {
+
+                $html = '';
+
+                foreach ($appointments as $value) {
+
+                    $visitor_id = Crypt::encryptString($value->id);
+
+                    $html .= '
 
                                 <tr class="border-bottom"> 
 
@@ -1096,313 +1030,311 @@ class AppointmentController extends Controller
                                 </tr>
 
                             ';
-
-                    }
-
-                    return response()->json(['status' => 'success', 'rows' => $html]);
-
-
-
-                } else {
-
-                    return response()->json(['status' => 'fail', 'msg' => 'No Form Found!']);
-
                 }
 
-            } catch (Exception $e) {
+                return response()->json(['status' => 'success', 'rows' => $html]);
+            } else {
 
-                return response()->json([
-
-                    'status' => 'fail',
-
-                    'msg' => $e->getMessage()
-
-                ], 200);
-
+                return response()->json(['status' => 'fail', 'msg' => 'No Form Found!']);
             }
+        } catch (Exception $e) {
 
+            return response()->json([
+
+                'status' => 'fail',
+
+                'msg' => $e->getMessage()
+
+            ], 200);
         }
-
-
-
-        //walkin visitor detail page
-
-        public function walikInVisitorDetails($id){
-
-            $visitor_id = Crypt::decryptString($id);
-
-            if($visitor_id){
-
-                $app = WalkinAppointment::find($visitor_id);
-
-                if ($app) {
-
-
-                    $client = User::where('id',$app->tenant_id)->first();
-
-                        return view('templates.appointment.walkin_visitor_detail',['visitor'=>$app,'client'=>$client]);
-
-                    } else {
-
-                        return view('templates.error');
-
-                    }
-
-                }else{
-
-                  return view('templates.error');
-
-            }
-
-        }
-
-        public function ApproveWalkInRequest(Request $request){
-
-            try{
-
-                $app_walkin = WalkinAppointment::where('id',$request->id)->first();
-                 
-                if($app_walkin){
-
-                    $app_walkin->status = $request->status;
-
-                    $app_walkin->save();
-
-                    if($request->status == "approve"){
-
-                        $today = Carbon::now();
-                        $app = new Appointment();
-                        $app->name = $app_walkin->name;
-                        $app->email = $app_walkin->email;
-                        $app->phone = $app_walkin->phone;
-                        $app->date = $today;
-                        $app->time = '08-09 am';
-                        $app->status = 'aprove';
-                        $app->tenant_id = $app_walkin->tenant_id;
-                        $app->site_id = $app_walkin->site_id;
-                        $app->unique_code = $this->generateUniqueCode();
-                        $app->created_at = $today;
-                        $app->save();
-
-                        if ($app) {
-                            $ap = Appointment::find($app->id);
-                            $link =  $ap->unique_code;
-
-                            $client = User::find($ap->tenant_id);
-                            $visitor_id = $ap->unique_code;
-                            $site = $client->site->name;
-
-                            QrCode::format('png')->size(200)->generate($link, 'images/codes/' . $ap->unique_code . '.png');
-                            $img_url = ('images/codes/' . $ap->unique_code . '.png');
-
-                            DB::table('appointments')->where('id', $ap->id)->update(["qr_code" => $img_url]);
-                            
-                            $data = [];
-                            $data["visitor_name"] = $ap->name;
-                            $data["site"] = $site;
-                            $data["image_url"] = asset($ap->qr_code); 
-                            $data["id"] = $visitor_id;
-                            Mail::to($ap->email)->send(new visitorConfirmation($data));
-
-                            //twillo sms
-                            $account_sid = config('services.twilio.sid');
-                            $auth_token = config('services.twilio.token');
-                            $twilio_number = config('services.twilio.phone');
-
-                            $site = Site::where('id', $client->site->id)->first();
-                            $siteName = $site->name;
-                            $receiverNumber = $ap->phone;
-                            $url = route('detail',['id'=>$visitor_id]);
-                            $message = 'You have been invited to visit ' . $siteName . ' please click this link and check the invitation details link is:' . $url . '';
-
-                            $client = new Client($account_sid, $auth_token);
-                            $client->messages->create($receiverNumber, [
-                                'from' => $twilio_number,
-                                'body' => $message
-                            ]);
-
-
-                            return response()->json(['status' => 'success', 'msg' => 'Appointment added successfully']);
-                        } else {
-
-                            return response()->json(['status' => 'fail', 'msg' => 'Failed to create & approve appointment']);
-                        }
-
-                        return response()->json(['status'=>'success','msg'=>'Appointment request approved']);
-                    }else{
-                        return response()->json(['status'=>'success','msg'=>'Appointment request declined']);
-                    }                  
-
-                }else{
-                    return response()->json(['status'=>'fail','msg'=>'Appointment not found!']);
-                }
-
-            }catch(Exception $e){
-
-                return response()->json(['status'=>'fail','msg'=>$e->getMessage()]);
-
-
-
-            }
-
-        }
-
-
-      public function ApproveQrRequest(Request $request){
-
-        try{
-
-            $app = Appointment::where('id',$request->id)->first();
-             
-                if($request->status == "approve"){
-                    
-                    $app->status = 'aprove';
-                    $app->save();
-                        return response()->json(['status' => 'success', 'msg' => 'Appointment added successfully']);
-                }else{
-                    $app->status = 'decline';
-                    $app->save();
-                    return response()->json(['status'=>'success','msg'=>'Appointment request declined']);
-                }                  
-        }catch(Exception $e){
-
-            return response()->json(['status'=>'fail','msg'=>$e->getMessage()]);
-        }
-
     }
-        public function generateUniqueCode()
 
-        {
 
-            do {
 
-            $randomString = "AP-".Str::random(15);
+    //walkin visitor detail page
 
-            } while (Appointment::where("unique_code", "=", $randomString)->first());
+    public function walikInVisitorDetails($id)
+    {
 
-      
+        $visitor_id = Crypt::decryptString($id);
 
-            return $randomString;
+        if ($visitor_id) {
 
+            $app = WalkinAppointment::find($visitor_id);
+
+            if ($app) {
+
+
+                $client = User::where('id', $app->tenant_id)->first();
+
+                return view('templates.appointment.walkin_visitor_detail', ['visitor' => $app, 'client' => $client]);
+            } else {
+
+                return view('templates.error');
+            }
+        } else {
+
+            return view('templates.error');
         }
+    }
+
+    public function ApproveWalkInRequest(Request $request)
+    {
+
+        try {
+
+            $app_walkin = Appointment::where('id', $request->id)->first();
+
+            if ($app_walkin) {
+
+                $app_walkin->status = $request->status;
+
+                $app_walkin->save();
+
+                if ($request->status == "approve") {
+
+                    // $today = Carbon::now();
+                    // $app = new Appointment();
+                    // $app->name = $app_walkin->name;
+                    // $app->email = $app_walkin->email;
+                    // $app->phone = $app_walkin->phone;
+                    // $app->date = $today;
+                    // $app->time = '08-09 am';
+                    // $app->status = 'aprove';
+                    // $app->tenant_id = $app_walkin->tenant_id;
+                    // $app->site_id = $app_walkin->site_id;
+                    // $app->unique_code = $this->generateUniqueCode();
+                    // $app->created_at = $today;
+                    // $app->save();
+                    $client = User::find($app_walkin->tenant_id);
+                    $visitor_id = $app_walkin->unique_code;
+                    $site = $client->site->name;
+                    $data = [];
+                    $data["visitor_name"] = $app_walkin->name;
+                    $data["site"] = $site;
+                    $data["image_url"] = asset($app_walkin->qr_code);
+                    $data["id"] = $visitor_id;
+                    Mail::to($app_walkin->email)->send(new visitorConfirmation($data));
+
+                    //twillo sms
+                    $account_sid = 'ACbe9332f45de09e658c04c6c08eb989e3';
+                    $auth_token = '4a456542ab17fafb6bd146ad7d93ce1e';
+                    $twilio_number = '+18152408707';
+                    $site = Site::where('id', $client->site->id)->first();
+                    $siteName = $site->name;
+                    $receiverNumber = $app_walkin->phone;
+                    $url = route('detail', ['id' => $visitor_id]);
+                    $message = 'You have been invited to visit ' . $siteName . ' please click this link and check the invitation details link is:' . $url . '';
+
+                    $client = new Client($account_sid, $auth_token);
+                    $client->messages->create($receiverNumber, [
+                        'from' => $twilio_number,
+                        'body' => $message
+                    ]);
 
 
+                    // return response()->json(['status' => 'success', 'msg' => 'Appointment added successfully']);
+                    // $ap = Appointment::find($app->id);
+                    // $link =  $ap->unique_code;
 
-        public function delete($id){
+                    // $client = User::find($ap->tenant_id);
+                    // $visitor_id = $ap->unique_code;
+                    // $site = $client->site->name;
+
+                    // QrCode::format('png')->size(200)->generate($link, 'images/codes/' . $ap->unique_code . '.png');
+                    // $img_url = ('images/codes/' . $ap->unique_code . '.png');
+
+                    // DB::table('appointments')->where('id', $ap->id)->update(["qr_code" => $img_url]);
+
+                    // $data = [];
+                    // $data["visitor_name"] = $ap->name;
+                    // $data["site"] = $site;
+                    // $data["image_url"] = asset($ap->qr_code); 
+                    // $data["id"] = $visitor_id;
+                    // Mail::to($ap->email)->send(new visitorConfirmation($data));
+
+                    // //twillo sms
+                    // $account_sid = config('services.twilio.sid');
+                    // $auth_token = config('services.twilio.token');
+                    // $twilio_number = config('services.twilio.phone');
+
+                    // $site = Site::where('id', $client->site->id)->first();
+                    // $siteName = $site->name;
+                    // $receiverNumber = $ap->phone;
+                    // $url = route('detail',['id'=>$visitor_id]);
+                    // $message = 'You have been invited to visit ' . $siteName . ' please click this link and check the invitation details link is:' . $url . '';
+
+                    // $client = new Client($account_sid, $auth_token);
+                    // $client->messages->create($receiverNumber, [
+                    //     'from' => $twilio_number,
+                    //     'body' => $message
+                    // ]);
 
 
-
-            $app = Appointment::find($id);
-
-            if($app){
-
-                $path=asset('images/codes/');
-
-                $qrcode = $app->id;
+                    // return response()->json(['status' => 'success', 'msg' => 'Appointment added successfully']);
 
 
-
-                if(file_exists($path.$qrcode)){
-
-                    unlink($path.$qrcode);
-
+                    return response()->json(['status' => 'success', 'msg' => 'Appointment request approved']);
+                } else {
+                    return response()->json(['status' => 'success', 'msg' => 'Appointment request declined']);
                 }
+            } else {
+                return response()->json(['status' => 'fail', 'msg' => 'Appointment not found!']);
+            }
+        } catch (Exception $e) {
+
+            return response()->json(['status' => 'fail', 'msg' => $e->getMessage()]);
+        }
+    }
+
+
+    public function ApproveQrRequest(Request $request)
+    {
+
+        try {
+
+            $app = Appointment::where('id', $request->id)->first();
+
+            if ($request->status == "approve") {
+
+                $app->status = 'aprove';
+                $app->save();
+                return response()->json(['status' => 'success', 'msg' => 'Appointment added successfully']);
+            } else {
+                $app->status = 'decline';
+                $app->save();
+                return response()->json(['status' => 'success', 'msg' => 'Appointment request declined']);
+            }
+        } catch (Exception $e) {
+
+            return response()->json(['status' => 'fail', 'msg' => $e->getMessage()]);
+        }
+    }
+    public function generateUniqueCode()
+
+    {
+
+        do {
+
+            $randomString = "AP-" . Str::random(15);
+        } while (Appointment::where("unique_code", "=", $randomString)->first());
 
 
 
-                $app->delete();
+        return $randomString;
+    }
 
 
 
-                return response()->json(['status'=>'success']);
-
-            }else{
-
-
-
-                return response()->json(['status'=>'fail']);
+    public function delete($id)
+    {
 
 
 
+        $app = Appointment::find($id);
+
+        if ($app) {
+
+            $path = asset('images/codes/');
+
+            $qrcode = $app->id;
+
+
+
+            if (file_exists($path . $qrcode)) {
+
+                unlink($path . $qrcode);
             }
 
+
+
+            $app->delete();
+
+
+
+            return response()->json(['status' => 'success']);
+        } else {
+
+
+
+            return response()->json(['status' => 'fail']);
         }
+    }
 
 
 
 
 
-        public function walkinAppointmentList()
+    public function walkinAppointmentList()
 
-        {
+    {
 
-            $site = User::find(auth()->user()->id);
-            
-            $clients = User::whereHas('roles', function ($q) {
+        $site = User::find(auth()->user()->id);
 
-                $q->where('name', 'Tenant');
+        $clients = User::whereHas('roles', function ($q) {
 
-            })->where('site_id', $site->site->id)->get();
-            
-            $clientIds = [];
+            $q->where('name', 'Tenant');
+        })->where('site_id', $site->site->id)->get();
 
-            if (isset($clients) && sizeof($clients)>0) {
+        $clientIds = [];
 
-    
+        if (isset($clients) && sizeof($clients) > 0) {
 
-                foreach ($clients as $c) {
 
-    
 
-                    if (!in_array($c->id, $clientIds)) {
+            foreach ($clients as $c) {
 
-                        $clientIds[] = $c->id;
 
+
+                if (!in_array($c->id, $clientIds)) {
+
+                    $clientIds[] = $c->id;
+                }
+            }
+
+
+
+            $today = \Carbon\Carbon::now()->format('Y-m-d');
+
+            $i = 1;
+
+
+
+            $apps = Appointment::whereIn('tenant_id', $clientIds)->whereDate('created_at', $today)->get();
+
+            $html = " ";
+
+
+
+            if (isset($apps) && sizeof($apps) > 0) {
+
+
+
+                foreach ($apps as $app) {
+
+
+
+                    if ($app->status == "pending") {
+
+                        $bg = "bg-warning";
+                        $bg_text = "Pending";
+                    } elseif ($app->status == "aprove") {
+
+                        $bg = "bg-primary";
+                        $bg_text = "Approved";
+                    } elseif ($app->status == "check_in") {
+                        $bg_text = "Checked In";
+                        $bg = "bg-primary";
+                    } else {
+                        $bg_text = "Declined";
+                        $bg = "bg-danger";
                     }
 
-                }
-
-                
-
-                $today = \Carbon\Carbon::now()->format('Y-m-d');
-
-                $i = 1;
-                
-                
-
-                $apps = WalkinAppointment::whereIn('tenant_id', $clientIds)->whereDate('created_at', $today)->get();
-                
-                $html = " ";
-
-
-
-                if (isset($apps) && sizeof($apps)>0) {
-
-     
-
-                    foreach ($apps as $app) {
-
-
-
-                        if($app->status=="pending"){
-
-                            $bg="bg-warning";
-                            $bg_text="Pending";
-                        }elseif($app->status=="aprove"){
-
-                            $bg="bg-primary";
-                            $bg_text="Approved";
-                        }else{
-                            $bg_text="Approved";
-                            $bg= "bg-danger";
-
-                        }
 
 
 
 
-
-                        $html .= '<tr>
+                    $html .= '<tr>
 
                             <td>' . ucwords($app->user->first_name) . ' ' . ucwords($app->user->last_name) . '</td>
 
@@ -1414,129 +1346,107 @@ class AppointmentController extends Controller
 
                             <td>
 
-                                <span class="badge '.$bg.'" style="rounded-circle:10px;">'.$bg_text.'</span>
+                                <span class="badge ' . $bg . '" style="rounded-circle:10px;">' . $bg_text . '</span>
 
                             </td>
 
                         </tr>';
 
-                        $i++;
-
-                    }
-
-    
-
-                    return response()->json(['status' => 'success', 'data' => $html]);
-
-    
-
-                } else {
-
-    
-
-                    return response()->json(['status' => 'fail', 'msg' => 'no appointment found!']);
-
-    
-
+                    $i++;
                 }
 
-    
 
-    
 
+                return response()->json(['status' => 'success', 'data' => $html]);
             } else {
 
-                return response()->json(['status' => 'fail', 'msg' => 'Client not found!']);
 
+
+                return response()->json(['status' => 'fail', 'msg' => 'no appointment found!']);
+            }
+        } else {
+
+            return response()->json(['status' => 'fail', 'msg' => 'Client not found!']);
+        }
+    }
+
+
+
+
+
+    public function statusList(Request $request)
+    {
+
+
+
+        $app = Appointment::find($request->id);
+
+
+
+        if ($app) {
+
+
+
+            if ($app->status == "pending") {
+
+                $status = '<span class="badge bg-warning text-white p-1" style="border-radius:10px">' . ucwords($app->status) . '</span>';
+            } elseif ($app->status == "check_in") {
+
+                $status = '<span class="badge bg-primary text-white p-1" style="border-radius:10px">Checked In</span>';
+            } elseif ($app->status == "decline") {
+
+                $status = '<span class="badge bg-danger text-white p-1" style="border-radius:10px">' . ucwords($app->status) . '</span>';
+            } else {
+                $status = '<span class="badge bg-success text-white p-1" style="border-radius:10px">Approved</span>';
             }
 
+
+
+            return response()->json(['status' => 'success', 'html' => $status]);
         }
+    }
 
 
 
 
 
-        public function statusList(Request $request){
-
-
-
-            $app = Appointment::find($request->id);
-
-
-
-            if($app){
-
-
-
-                if($app->status=="pending"){
-
-                    $status = '<span class="badge bg-warning text-white p-1" style="border-radius:10px">'.ucwords($app->status).'</span>';
-
-                }elseif($app->status=="check_in"){
-
-                    $status = '<span class="badge bg-primary text-white p-1" style="border-radius:10px">Checked In</span>';
-
-                }elseif($app->status=="decline"){
-
-                    $status = '<span class="badge bg-danger text-white p-1" style="border-radius:10px">'.ucwords($app->status).'</span>';
-
-                }else{
-                    $status = '<span class="badge bg-success text-white p-1" style="border-radius:10px">Approved</span>';
-                }
-
-
-
-                return response()->json(['status'=>'success','html'=>$status]);
-
-
-
-            }
-
-        }
+    public function AppointmentHandling($id)
+    {
 
 
 
 
-
-        public function AppointmentHandling($id){
-
-
+        return redirect('appointment/detail/' . $id);
+    }
 
 
-            return redirect('appointment/detail/'.$id);
-
-
-
-        }
-
-
-     // appointment get through unique code
-    public function AppointmentDetailThroughCode(Request $request,$id)
+    // appointment get through unique code
+    public function AppointmentDetailThroughCode(Request $request, $id)
     {
         try {
             $code = $id;
             $unique = substr($code, 0, 2);
-           if ($unique = 'AP') {
+            if ($unique = 'AP') {
                 $site_id = 0;
-                if(isset($request->is_external) && isset($request->site_id)){
+                if (isset($request->is_external) && isset($request->site_id)) {
                     $site_id = $request->site_id;
-                }else {
-                    if(!is_null(Auth::user())){
+                } else {
+                    if (!is_null(Auth::user())) {
                         $user = Auth::user();
                         $site_id = $user->site_id;
                     }
                 }
-                
+
                 $appointment  = Appointment::where('unique_code', $code)->first();
                 if ($appointment->site_id == $site_id) {
                     $url = env('APP_URL') . '/appointment/detail/' . $appointment->unique_code;
-                    $url = isset($request->is_external) ? $url.'?external=1' : $url;
+                    $url = isset($request->is_external) ? $url . '?external=1' : $url;
                     return response()->json(['status' => 'success', 'url' => $url]);
                 } else {
                     return response()->json(['status' => 'fail', 'msg' => 'Invitation is not for this site!']);
                 }
             } elseif ($unique == 'ST') {
-                
+
                 $site  = Site::where('unique_code', $code)->first();
                 $url = env('APP_URL') . '/external/new/appointment/' . $site->unique_code;
                 return response()->json(['status' => 'success', 'url' => $url]);
@@ -1548,26 +1458,27 @@ class AppointmentController extends Controller
     }
 
     // bar code sccaner for appointments
-    public function BarcodeScanner(Request $request,$id){
+    public function BarcodeScanner(Request $request, $id)
+    {
         try {
             $code = $id;
-            
+
             $unique = substr($code, 0, 2);
-           if ($unique = 'AP') {
+            if ($unique = 'AP') {
                 $site_id = 0;
-                if(isset($request->is_external) && isset($request->site_id)){
+                if (isset($request->is_external) && isset($request->site_id)) {
                     $site_id = $request->site_id;
-                }else {
-                    if(!is_null(Auth::user())){
+                } else {
+                    if (!is_null(Auth::user())) {
                         $user = Auth::user();
                         $site_id = $user->site_id;
                     }
                 }
-                
+
                 $appointment  = Appointment::where('unique_code', $code)->first();
                 if ($appointment->site_id == $site_id) {
-                    
-                    return response()->json(['status' => 'success', 'id' => $appointment->id,'ap-status'=>$appointment->status]);
+
+                    return response()->json(['status' => 'success', 'id' => $appointment->id, 'ap-status' => $appointment->status]);
                 } else {
                     return response()->json(['status' => 'fail', 'msg' => 'Invalid code for this site!']);
                 }
@@ -1580,4 +1491,3 @@ class AppointmentController extends Controller
         }
     }
 }
-

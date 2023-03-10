@@ -203,13 +203,27 @@
     <a href="#top" id="back-to-top"><i class="fa fa-angle-up"></i></a>
 
     @include('includes.script')
+    <script src="{{ asset('js/app.js') }}"></script>
     <script>
         var is_auth = "{{ !is_null(Auth::user()) ? 1 : 0 }}"
         var is_guard = "{{ !is_null(Auth::user()) && Auth::user()->hasRole('Guard') ? 1 : 0 }}"
         var is_pending = "{{ isset($app->status) && $app->status == 'pending' ? 1 : 0 }}"
         var is_external = "{{ Request::get('external') }}"
+        var is_mobile = "{{ Request::get('mobile') }}"
+        const pathArray = window.location.pathname.split("/");
+        $(document).ready(function() {
+            Echo.channel(`request_new_qr.${pathArray[3]}`)
+                .listen('QrNotification', function(response) {
+                    if(is_external !=1){
+                        setTimeout(() => {
+                            window.location.href = window.location.pathname+'?external=1&mobile=1';
+                        }, 3000);
+                       
+                    }
+                });
+        });
         if (is_pending == 1) {
-            if ((is_auth == 1 && is_guard == 1) || is_external == 1) {
+            if ((is_auth == 1 && is_guard == 1) || (is_external == 1 && is_mobile !=1)) {
                 informClient();
             }
         } else {
