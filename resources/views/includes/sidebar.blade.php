@@ -341,18 +341,26 @@ $site = \App\Models\Site::where('id', Auth::user()->site_id)->first();
                     
                     <li class="slide">
                         <a class="side-menu__item" data-bs-toggle="slide" href="javascript:void(0)"><i
+                                class="side-menu__icon fa fa-map-marker"></i><span class="side-menu__label">WayFinder</span><i
+                                class="angle fe fe-chevron-right"></i></a>
+
+                        <ul class="slide-menu">
+                           <li> <a href="{{url('/add/picture')}}" class="slide-item">Add Wayfinder Images</a></li>
+
+                        </ul>
+
+                    </li>
+                    <li class="slide">
+                        <a class="side-menu__item" data-bs-toggle="slide" href="javascript:void(0)"><i
                                 class="side-menu__icon fa fa-map-marker"></i><span class="side-menu__label">Screens</span><i
                                 class="angle fe fe-chevron-right"></i></a>
 
                         <ul class="slide-menu">
 
                             <li><a href="{{ url('/screen/list') }}" class="slide-item">Screen List</a></li>
-
-
-
                             <li><a href="{{ url('/add/screen') }}" class="slide-item">Add Screen</a></li>
 
-                           <li> <a href="{{url('/add/picture')}}" class="slide-item">Wayfinder Images</a></li>
+                           {{-- <li> <a href="{{url('/add/picture')}}" class="slide-item">Wayfinder Images</a></li> --}}
 
                         </ul>
 

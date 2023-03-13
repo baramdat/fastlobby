@@ -30,7 +30,8 @@ class WayfinderController extends Controller
             }
             $image->description = $request->description;
             $image->save();
-            return response()->json(['status' => 'success', 'msg' => 'Image added successfully']);
+            $doc_url=asset('uploads/files/wayfinder').'/'.$images->getClientOriginalExtension();
+            return response()->json(['status' => 'success', 'doc_url'=>$doc_url,'msg' => 'Image added successfully']);
         } catch (Exception $e) {
             return response()->json([
                 'status' => 'fail',

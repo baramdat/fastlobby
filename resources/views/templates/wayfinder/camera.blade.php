@@ -51,7 +51,7 @@
                         <a id="click-photo" class="btn btn-light mt-2 "
                             style="border: 1px solid #555555;border-radius: 6px;background: none;display:none">Click
                             Photo</a>
-                        <canvas id="canvas" class="d-none" width="320" height="240"></canvas>
+                        <canvas id="canvas"  width="320" height="240"></canvas>
                     </div>
                 </div>
             </div>
@@ -97,17 +97,8 @@
                             toastr.success('Success', data.msg)
 
                             $("#description").val('');
-                            // $('.hide_me').css('display', 'none');
-                            // $('.carousel').removeClass('hide_cara').slick(
-                            //     'slickAdd',
-                            //     '<div><img src="' + data.doc_url +
-                            //     '" style="width:40%"  /><a href="javascript:;" class="text-danger delete_this_file delete-btn" doc_name="' +
-                            //     data.doc_name + '" doc_id="' + data.doc_id +
-                            //     '" class="delete-image"><i class="fa fa-trash text-danger"></i></a></div>'
-                            // );
-                            // $('#video').css('display','none')
                             // $("#click-photo").css('display','none')
-                            console.log(image_data_url);
+                            // console.log(image_data_url);
                         }
                     },
                     error: function(data, errorThrown) {
