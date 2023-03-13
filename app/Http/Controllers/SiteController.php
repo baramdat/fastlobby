@@ -48,7 +48,7 @@ class SiteController extends Controller
             $site->address = $request->address;
             $site->status = $request->status;
             $site->unique_code = $this->generateUniqueCode();
-             if ($request->url != "") {
+            if ($request->url != "") {
                 $ip_address = json_encode($request->url, true);
             } else {
                 $ip_address = NULL;
@@ -59,7 +59,7 @@ class SiteController extends Controller
             // $site_id = Crypt::encrypt($site->id);
             $link = $site->unique_code;
             QrCode::format('png')->size(200)->generate($link, 'images/codes/' . $site->unique_code . '.png');
-            $img_url = ('images/codes/' . $site->unique_code.'.png');
+            $img_url = ('images/codes/' . $site->unique_code . '.png');
             if ($site->qr_code == NULL) {
                 DB::table('sites')->where('id', $site->id)->update(["qr_code" => $img_url]);
             }
@@ -74,17 +74,17 @@ class SiteController extends Controller
             ], 200);
         }
     }
-    
-    
+
+
     public function generateUniqueCode()
     {
         do {
-            $randomString = "ST".Str::random(15);
+            $randomString = "ST" . Str::random(15);
         } while (Appointment::where("unique_code", "=", $randomString)->first());
 
         return $randomString;
     }
-    
+
     //unique code for sites
     public function addSiteUniqueCode()
     {
@@ -103,9 +103,9 @@ class SiteController extends Controller
             return response()->json(['status' => 'fail', 'msg' => $e->getMessage()]);
         }
     }
-    
+
     //Qr for all sites
-     public function GenerateSitesQr()
+    public function GenerateSitesQr()
     {
 
         try {
@@ -185,10 +185,9 @@ class SiteController extends Controller
         if (!empty($site)) {
             if ($site->ip_address != " ") {
                 $ip_address = json_decode($site->ip_address, true);
+            } else {
 
-            }else{
-
-                $ip_address=[];
+                $ip_address = [];
             }
             return view('templates/site/edit', ['site' => $site, 'urls' => $ip_address]);
         } else {
@@ -290,7 +289,7 @@ class SiteController extends Controller
                 $html = '';
                 foreach ($sites as $site) {
                     if (isset($site->qr_code) &&  $site->qr_code != NULL) {
-                        $qr =  '<img src="'.asset($site->qr_code).'">';
+                        $qr =  '<img src="' . asset($site->qr_code) . '">';
                         $qrDownload = '<a  class="btn btn-success text-white btnQrDownload" data="' . $site->name . '" fileUrl="' . asset('/images/codes/' . $site->unique_code . '.png') . '">Download QR</a>';
                     } else {
                         $qrDownload = '';
@@ -310,7 +309,7 @@ class SiteController extends Controller
                             </td>
 
                             <td>
-                                '.$qr.'
+                                ' . $qr . '
                             </td>
 
                             <td>
@@ -390,6 +389,7 @@ class SiteController extends Controller
 
     public function externalScanPage($id)
     {
+        
         $site = Site::find($id);
         if ($site) {
             return view('templates.external.scan', ['site' => $site]);

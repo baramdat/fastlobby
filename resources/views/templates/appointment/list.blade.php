@@ -202,6 +202,49 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="check_history">
+
+        <div class="modal-dialog modal-dialog-centered text-center" role="document">
+
+            <div class="modal-content modal-content-demo">
+
+                <div class="modal-header">
+
+                    <h6 class="modal-title fw-bold">Checked In History</h6><button aria-label="Close" class="btn-close"
+
+                        data-bs-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+
+                </div>
+
+                <div class="modal-body">
+
+
+                        <div class="form-group">
+
+                           
+                          <div id="checked_history">
+
+                          </div>
+                            
+
+                        </div>
+
+                        <div class="modal-footer">
+
+                            <button class="btn btn-light" data-bs-dismiss="modal">Close</button>
+
+                        </div>
+
+
+                </div>
+
+ 
+
+            </div>
+
+        </div>
+
+    </div>
 @endsection
 
 @section('bottom-script')
@@ -453,7 +496,31 @@
                         }
                     });
             });
-
+            $(document).on('click', '.btnCheckedHistory', function(e) {
+                var id = $(this).attr('id')
+                $("#checked_history").html('');
+                            $.ajax({
+                                url: '/api/appointment/checked_in/history/' + id,
+                                type: "get",
+                                dataType: "JSON",
+                                success: function(response) {
+                                    console.log(response)
+                                    if (response["status"] == "fail") {
+                                        
+                                    } else if (response["status"] == "success") {
+                                        $("#checked_history").html(response["html"]);
+                                      $('#check_history').modal('show');
+                                      
+                                    }
+                                },
+                                error: function(error) {
+                                    // console.log(error);
+                                },
+                                async: false
+                            });
+                       
+            });
+            
             // edit form
             $(document).on('click', '.btnEdit', function(e) {
                 var form = $(this).attr('id');

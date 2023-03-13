@@ -3,7 +3,7 @@
 
 
 @section('title')
-    Add Site Qr
+    Add Site QR
 @endsection
 
 
@@ -33,7 +33,7 @@
 
         <div class="page-header">
 
-            <h1 class="page-title">Add Site Qr</h1>
+            <h1 class="page-title">Add Site QR</h1>
 
             <div>
 
@@ -41,9 +41,9 @@
 
                     <li class="breadcrumb-item"><a href="{{ url('/dashboard') }}">Home</a></li>
 
-                    <li class="breadcrumb-item"><a href="{{ url('/view/site/qr/list') }}">Site Qr list</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url('/view/site/qr/list') }}">Site QR list</a></li>
 
-                    <li class="breadcrumb-item active" aria-current="page">Add Site Qr </li>
+                    <li class="breadcrumb-item active" aria-current="page">Add Site QR </li>
 
                 </ol>
 
@@ -65,31 +65,31 @@
                         <div class="row">
                             <div class="form-group col-lg-6 col-md-6 col-sm-12" id="qrType">
 
-                                <label class="form-label mb-0">Default Qr Type: <span class="text-danger">*</span></label>
+                                <label class="form-label mb-0">Default QR Type: <span class="text-danger">*</span></label>
     
                                 <select class="form-control" name="qr_type" id="qr_type" required>
     
-                                    <option value="" selected>Choose Qr Type</option>
+                                    <option value="" selected>Choose QR Type</option>
     
                                     @foreach($qr_type as $qr)
     
                                         <option value="{{$qr->id}}">{{ucwords($qr->name)}} </option>
     
                                     @endforeach
-    
+                                    <option value="other" >Others</option>
                                 </select>
     
                             </div>
                             <div class="form-group form-group col-lg-6 col-md-6 col-sm-12" id="otherType" style="display: none">
 
-                                <label for="exampleInputname" class="form-label mb-0">Other Qr Type: <span
+                                <label for="exampleInputname" class="form-label mb-0">Name: <span
                                         class="text-danger">*</span> </label>
 
                                 <input type="text" class="form-control" id="type_name" name="type_name"
                                     placeholder="Enter name of type">
 
                             </div>
-                            <h5>Type</h5>
+                            {{-- <h5>Type</h5>
                                 <div class="form-group form-group col-lg-3 col-md-3 col-sm-12  checkbox form-check">
                                     <div class="card" >
                                         <div class="card-body">
@@ -111,7 +111,7 @@
                                             </label>
                                         </div>
                                     </div>
-                                </div>
+                                </div> --}}
                         </div>
                 </div>
 
@@ -219,8 +219,17 @@
                 });
 
             }));
-
+            $("#qr_type").on('change',function(e){
+                if($(this).val()=='other'){
+                    $('#otherType').css('display','inline-block');
+                    $('#type_name').prop( "required", true );
+                }else{
+                    $('#otherType').css('display','none');
+                    $('#type_name').prop( "required", false );
+                }
+            });
           $("#other").on('change',function(e){
+            alert($(this).val());
             $('#default').prop( "checked", false );
             $('#otherType').css('display','inline-block');
             $('#qrType').css('display','none');

@@ -663,7 +663,7 @@
                                             Please show the below QR code to the security guard upon your arrival.
                                             <br>
                                         </p>
-                                        <img src="{{asset('images/codes/AP-8jbiCE0JtRaSmLR.png')}}"  style="padding: 15px; background-color: #006f94;"><br><br>
+                                        <img src="{{asset('images/codes/AP-8jbiCE0JtRaSmLR.png')}}"  style="padding: 15px; background-color:  #e3e3f0;"><br><br>
                                         <p> Also visit our site <a href="https://www.fastlobby.com" target="_blank">www.fastlobby.com</a></p><br>
                                         <p style="padding-top:8px; padding-bottom:15px; font-family: 'Lato', sans-serif;">
                                             <h4><b>Thank you</b></h4>

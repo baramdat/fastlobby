@@ -4,7 +4,7 @@
 Scan Qrcode
 @endsection
 <?php
- use SimpleSoftwareIO\QrCode\Facades\QrCode;
+//  use SimpleSoftwareIO\QrCode\Facades\QrCode;
 ?>
 @section('content')
 
@@ -74,7 +74,7 @@ Scan Qrcode
                 <?php
                 $link = env('APP_URL') . '/external/new/appointment/' . $site->unique_code
                 ?>
-                <img src="data:image/png;base64, {{ base64_encode(QrCode::encoding('UTF-8')->format('png')->margin(1)->size(220)->generate($link)) }}">
+                {{-- <img src="data:image/png;base64, {{ base64_encode(QrCode::encoding('UTF-8')->format('png')->margin(1)->size(220)->generate($link)) }}"> --}}
                 <!--<img src="{{asset($site->qr_code)}}">-->
             </div><br>
         </div>

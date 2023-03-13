@@ -13,6 +13,8 @@ use Carbon\Carbon;
 use App\Models\Site;
 
 use App\Models\User;
+use App\Models\Appointment_details;
+
 
 use Twilio\Rest\Client;
 
@@ -166,12 +168,13 @@ class AppointmentController extends Controller
             $today = Carbon::now();
 
             $app = new Appointment();
-
+            $newDateTime = Carbon::now()->subHour()->format('h');
+            $current = Carbon::now();
             $app->name = $request->name;
             $app->email = $request->email;
             $app->phone = $request->phone;
 
-            // $app->gender = $request->gender;
+             $app->time = $newDateTime.'-'.$current->format('h a');
 
             $app->tenant_id = $request->tenant;
             $app->date = $today;
@@ -649,13 +652,16 @@ class AppointmentController extends Controller
                     if ($value->status == "pending") {
 
                         $status = '<span class="badge bg-warning text-white p-1" style="border-radius:10px">' . ucwords($value->status) . '</span>';
+                        $history='';
                     } elseif ($value->status == "check_in") {
 
-                        $status = '<span class="badge bg-primary  text-white p-1" style="border-radius:10px">Checked In</span>';
+                        $status = '<span class="badge bg-primary  text-white p-1" style="border-radius:10px">Checked In</span> <br>';
+                        $history='<a class="btnCheckedHistory" id="' . $value->id . '" style="color: blue; font-size:12px">View History</a>';
                     } elseif ($value->status == "decline") {
-
+                        $history='';
                         $status = '<span class="badge bg-danger  text-white p-1" style="border-radius:10px">' . ucwords($value->status) . '</span>';
                     } else {
+                        $history='';
                         $status = '<span class="badge bg-success  text-white p-1" style="border-radius:10px">Approved</span>';
                     }
 
@@ -712,7 +718,8 @@ class AppointmentController extends Controller
                                     <h6 class="mb-0 m-0 fs-14 ">
 
                                     ' . $status . '</h6>
-
+                                    
+                                 '.$history.'
                                 </td>
 
                                 <td>
@@ -781,7 +788,23 @@ class AppointmentController extends Controller
         try {
 
             $visitor = Appointment::find($request->id);
-
+            
+            $appointment_details=Appointment_details::where('appointment_id',$request->id)->first();
+            if($appointment_details){
+                $app_details=new Appointment_details();
+                $newDateTime = Carbon::now()->subHour()->format('h');
+                $current = Carbon::now();
+                $app_details->appointment_id=$request->id;
+                $app_details->check_in_time=$newDateTime.'-'.$current->format('h a');
+                $app_details->save();
+                $visitor->time=$newDateTime.'-'.$current->format('h a');
+            }else{
+                $app_details=new Appointment_details();
+                $app_details->appointment_id=$request->id;
+                $app_details->check_in_time=$visitor->time;
+                $app_details->save();
+            }
+            
             $client = User::find($visitor->tenant_id);
             Mail::send('templates.email.visitor_appointment_request', ['client' => $client, 'visitor' => $visitor], function ($message) use ($client) {
 
@@ -823,9 +846,6 @@ class AppointmentController extends Controller
 
                 ]);
             }
-
-
-
             return response()->json(['status' => 'success', 'msg' => 'Mail sent']);
         } catch (\Exception $e) {
             return response()->json(['status' => 'fail', 'msg' => $e->getMessage()]);
@@ -1388,26 +1408,41 @@ class AppointmentController extends Controller
 
 
             if ($app->status == "pending") {
-
+                
                 $status = '<span class="badge bg-warning text-white p-1" style="border-radius:10px">' . ucwords($app->status) . '</span>';
             } elseif ($app->status == "check_in") {
-
-                $status = '<span class="badge bg-primary text-white p-1" style="border-radius:10px">Checked In</span>';
+                
+                $status = '<span class="badge bg-primary text-white p-1" style="border-radius:10px">Checked In</span> <br> <a class="btnCheckedHistory" id="' . $app->id . '" style="color: blue; font-size:12px">View History</a>';
             } elseif ($app->status == "decline") {
-
+             
                 $status = '<span class="badge bg-danger text-white p-1" style="border-radius:10px">' . ucwords($app->status) . '</span>';
             } else {
+                
                 $status = '<span class="badge bg-success text-white p-1" style="border-radius:10px">Approved</span>';
             }
-
-
 
             return response()->json(['status' => 'success', 'html' => $status]);
         }
     }
 
 
+     public function checkInHistory(Request $request){
+        $app = Appointment_details::where('appointment_id',$request->id)->get();
 
+
+
+        if ($app) {
+
+         $details='';
+         $i=1;
+         foreach($app as $ap){
+            $details .= '<h5> '.$i.': '. $ap->check_in_time.'</h5>';
+            $i++;
+         }
+
+            return response()->json(['status' => 'success', 'html' => $details]);
+        }
+     }
 
 
     public function AppointmentHandling($id)

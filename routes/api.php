@@ -260,6 +260,8 @@ Route::get('/appointment/count', [AppointmentController::class,'count']);
 Route::get('/appointment/list', [AppointmentController::class,'list']); 
 
 Route::get('/appointment/status', [AppointmentController::class,'statusList']); 
+Route::get('/appointment/checked_in/history/{id}', [AppointmentController::class,'checkInHistory']); 
+
 
 Route::get('guard/recent/appointments', [AppointmentController::class,'guardRecentAppointment']); 
 
