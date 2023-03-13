@@ -4,7 +4,7 @@
 Scan Qrcode
 @endsection
 <?php
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
+ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 ?>
 @section('content')
 

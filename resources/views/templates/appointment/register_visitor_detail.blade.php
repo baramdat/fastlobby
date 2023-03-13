@@ -218,13 +218,16 @@
                         setTimeout(() => {
                             window.location.href = window.location.pathname+'?external=1&mobile=1';
                         }, 3000);
-                       
                     }
                 });
         });
         if (is_pending == 1) {
-            if ((is_auth == 1 && is_guard == 1) || (is_external == 1 && is_mobile !=1)) {
-                informClient();
+            if ((is_auth == 1 && is_guard == 1) || is_external == 1) {
+                if(is_mobile !=1){
+                    informClient();
+                }else{
+                  c();
+                }
             }
         } else {
             if ((is_auth == 1 && is_guard == 1)) {
