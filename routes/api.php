@@ -26,6 +26,10 @@ use App\Http\Controllers\LockerController;
 
 use App\Http\Controllers\PickupController;
 
+use App\Http\Controllers\ScreenController;
+
+use App\Http\Controllers\WayfinderController;
+
 use App\Http\Controllers\QrCodeTypeController;
 
 use App\Http\Controllers\VideoRoomsController;
@@ -33,9 +37,7 @@ use App\Http\Controllers\VideoRoomsController;
 use App\Http\Controllers\AppointmentController;
 
 use App\Http\Controllers\NotificationController;
-
 use App\Http\Controllers\tenantEmployeeController;
-
 use App\Http\Controllers\CameraAuthenticationController;
 use App\Http\Controllers\Integrator\BuildingAdminController;
 use App\Http\Controllers\Integrator\IntegratorDoorController;
@@ -43,7 +45,6 @@ use App\Http\Controllers\BuildingAdmin\buildingDoorController;
 use App\Http\Controllers\Integrator\SiteController as IntegratorSiteController;
 use App\Http\Controllers\BuildingAdmin\userController as buildingUserController;
 use App\Http\Controllers\BuildingAdmin\AppointmentController as BuildingAppointment;
-use App\Http\Controllers\ScreenController;
 
 /*
 
@@ -134,6 +135,10 @@ Route::get('/screen/count', [ScreenController::class,'screenCount']);
 Route::get('/screen/list', [ScreenController::class,'screenList']);
 Route::delete('/screen/delete/{id}', [ScreenController::class,'deleteScreen']);
 Route::post('/update/screens', [ScreenController::class,'updateScreen']);
+
+// way finder
+Route::post('/add/wayfinder/picture', [WayfinderController::class,'index']);
+
 
 
 

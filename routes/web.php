@@ -76,6 +76,8 @@ Route::group(['middleware' => ['web']], function () {
      Route::get('/view/screen/data/{id}', [ScreenController::class, 'screenView']);
      Route::get('/screen/edit/{id}', [ScreenController::class, 'editScreen']);
      
+     // way founder
+     Route::view('add/picture', 'templates.wayfinder.camera');
 
     //integrator for building admins routes
     Route::get('integrator/user/add', [BuildingAdminController::class, 'viewAdd'])->middleware('integrator');
