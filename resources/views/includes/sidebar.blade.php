@@ -346,7 +346,7 @@ $site = \App\Models\Site::where('id', Auth::user()->site_id)->first();
 
                         <ul class="slide-menu">
                            <li> <a href="{{url('/add/picture')}}" class="slide-item">Add Wayfinder Images</a></li>
-
+                           <li> <a href="{{url('/wayfinder/list')}}" class="slide-item">Wayfinder List</a></li>
                         </ul>
 
                     </li>

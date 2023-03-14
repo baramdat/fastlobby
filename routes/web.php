@@ -10,7 +10,9 @@ use App\Http\Controllers\SiteController;
 use App\Http\Controllers\userController;
 use App\Http\Controllers\LockerController;
 use App\Http\Controllers\PickupController;
+use App\Http\Controllers\ScreenController;
 use App\Http\Controllers\StreamingController;
+use App\Http\Controllers\WayfinderController;
 use App\Http\Controllers\QrCodeTypeController;
 use App\Http\Controllers\VideoRoomsController;
 use App\Http\Controllers\AppointmentController;
@@ -21,7 +23,6 @@ use App\Http\Controllers\Integrator\IntegratorDoorController;
 use App\Http\Controllers\BuildingAdmin\buildingDoorController;
 use App\Http\Controllers\Integrator\SiteController as IntegratorSiteController;
 use App\Http\Controllers\BuildingAdmin\userController as buildingUserController;
-use App\Http\Controllers\ScreenController;
 
 /*
 |--------------------------------------------------------------------------
@@ -78,7 +79,9 @@ Route::group(['middleware' => ['web']], function () {
      
      // way founder
      Route::view('add/picture', 'templates.wayfinder.camera');
-
+     Route::view('wayfinder/list', 'templates.wayfinder.list');
+     Route::get('wayfinder/details/{id}', [WayfinderController::class,'wayFinderDetails']);
+     
     //integrator for building admins routes
     Route::get('integrator/user/add', [BuildingAdminController::class, 'viewAdd'])->middleware('integrator');
     Route::view('integrator/user/list', 'templates.Integrator.building_admin.list')->middleware('integrator');

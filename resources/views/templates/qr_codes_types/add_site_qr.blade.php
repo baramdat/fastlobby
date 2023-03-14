@@ -80,6 +80,15 @@
                                 </select>
     
                             </div>
+                            <div class="form-group form-group col-lg-6 col-md-6 col-sm-12"  >
+
+                                <label for="exampleInputname" class="form-label mb-0">QR Text: <span
+                                        class="text-danger">*</span> </label>
+
+                                <input type="text" class="form-control" id="qr_text" name="qr_text"
+                                    placeholder="Enter text for qr">
+
+                            </div>
                             <div class="form-group form-group col-lg-6 col-md-6 col-sm-12" id="otherType" style="display: none">
 
                                 <label for="exampleInputname" class="form-label mb-0">Name: <span

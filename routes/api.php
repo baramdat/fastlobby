@@ -138,6 +138,9 @@ Route::post('/update/screens', [ScreenController::class,'updateScreen']);
 
 // way finder
 Route::post('/add/wayfinder/picture', [WayfinderController::class,'index']);
+Route::post('/add/wayfinder/location', [WayfinderController::class,'wayFinderLocation']);
+Route::get('/wayfinder/count', [WayfinderController::class,'wayFinderCount']);
+Route::get('/wayfinder/list', [WayfinderController::class,'wayFinderList']);
 
 
 

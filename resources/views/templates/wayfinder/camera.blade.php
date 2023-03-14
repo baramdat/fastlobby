@@ -22,13 +22,12 @@
                 class="badge bg-success">{{ ucwords(Auth::user()->roles->pluck('name')[0]) }}</small>
         </div>
         <div class="page-header">
-            <h1 class="page-title">Add Picture</h1>
+            <h1 class="page-title">Configure Wayfinder</h1>
             <div>
                 <ol class="breadcrumb">
-
                     <li class="breadcrumb-item"><a href="{{ url('/dashboard') }}">Home</a> </li>
-                    <li class="breadcrumb-item"><a href="{{ url('/site/list') }}">Picture List</a> </li>
-                    <li class="breadcrumb-item active" aria-current="page">Add Picture</li>
+                    <li class="breadcrumb-item"><a href="{{ url('/site/list') }}">Wayfinder List</a> </li>
+                    <li class="breadcrumb-item active" aria-current="page">Configure Wayfinder</li>
 
                 </ol>
             </div>
@@ -37,21 +36,68 @@
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Add Picture</h3>
+                    <h3 class="card-title">Configure Wayfinder</h3>
                 </div>
                 <div class="card-body">
-                    <div class="col-lg-3 text-center">
-                        <a class="btn btn-light mt-2 " id="start-camera"
-                            style="border: 1px solid #555555;border-radius: 6px;background: none;">Open
-                            Camera</a>
+                    <form action="" class="address" id="add_loctaion_form">
+                        @csrf
+                        <div class="row">
+                            <div class="form-group form-group col-lg-6 col-md-6 col-sm-12">
+                                <label for="exampleInputname" class="form-label mb-0">START</label>
+                                <input type="text" class="form-control" id="start" name="start"
+                                    placeholder="Enter Starting Point" required>
+                            </div>
+
+                            <div class="form-group form-group col-lg-6 col-md-6 col-sm-12">
+                                <label for="exampleInputname" class="form-label mb-0"
+                                    style="vertical-align: middle;">END</label>
+                                <input type="text" class="form-control" id="end" name="end"
+                                    placeholder="Enter Ending Point" required>
+                            </div>
+                        </div>
+                        <div class="card-footer text-end">
+                            <button type="submit" class="btn btn-primary " id="next"
+                                style="border: 1px solid #555555; border-radius: 6px;background: none;">Next</button>
+                        </div>
+
+                    </form>
+                    <div class="form-group form-group col-lg-6 col-md-6 col-sm-12 text-end">
+                        <button class="btn btn-light mt-2" id="start-camera"
+                            style="border: 1px solid #555555;border-radius: 6px;background: none;display:none;">Open
+                            Camera</button>
                     </div>
-                    <div class="col-lg-3">
-                        <video id="video" width="220" height="170" autoplay></video>
-                        <input type="form-control" name="description" id="description" style="display:none">
-                        <a id="click-photo" class="btn btn-light mt-2 "
-                            style="border: 1px solid #555555;border-radius: 6px;background: none;display:none">Click
-                            Photo</a>
-                        <canvas id="canvas"  width="320" height="240"></canvas>
+                    <div class="row take_picture">
+                        <div class="col-lg-3">
+                            <input type="hidden" name="loction" id="loction">
+                            <label for="exampleInputname" id="textlabel" class="form-label mb-0"
+                                style="display:none;">Text</label>
+                            <input type="text" class="form-control mt-3 mb-2" name="description" id="description"
+                                style="display:none" placeholder="Enter text">
+                            <label for="exampleInputname" id="imagelabel" class="form-label mb-0"
+                                style="display:none;">Image</label>
+                            <video id="video" width="280" height="200" autoplay></video>
+                            <a id="click-photo" class="btn btn-light mt-2"
+                                style="border: 1px solid #555555;border-radius: 6px;background: none;display:none">Click
+                                Photo</a>
+                            <div id="canvas_show">
+                                <canvas id="canvas" width="280" height="200"></canvas>
+                                <a id="save-photo" class="btn btn-light mt-2 "
+                                    style="border: 1px solid #555555;border-radius: 6px;background: none;display:none">Save</a>
+                            </div>
+
+                        </div>
+
+
+                    </div>
+                    <div class="save_done" style="display: none">
+                        <div class="col-lg-3">
+                            <a class="btn btn-light mt-2 start-camera" id="take_pictures"
+                                style="border: 1px solid #555555;border-radius: 6px;background: none;">Take Picture</a>
+                        </div>
+                        <div class="col-lg-3">
+                            <a class="btn btn-light mt-2 " id="finish"
+                                style="border: 1px solid #555555;border-radius: 6px;background: none;">Finish/Publish</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -64,26 +110,121 @@
 @section('bottom-script')
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        $(document).ready(function(e) {
+
+            // add user
+
+            $("#add_loctaion_form").on('submit', (function(e) {
+
+                e.preventDefault();
+
+                var formData = new FormData(this);
+
+                $.ajax({
+
+                    url: '/api/add/wayfinder/location',
+
+                    type: "POST",
+
+                    data: formData,
+
+                    dataType: "JSON",
+
+                    processData: false,
+
+                    contentType: false,
+
+                    cache: false,
+
+                    beforeSend: function() {
+
+                        $("#next").attr('disabled', true);
+
+                        $(".fa-pulse").css('display', 'inline-block');
+
+                    },
+
+                    complete: function() {
+
+                        $("#next").attr('disabled', false);
+
+                        $(".fa-pulse").css('display', 'none');
+
+                    },
+
+                    success: function(response) {
+
+                        if (response["status"] == "fail") {
+
+                            toastr.error('Failed', response["msg"]);
+
+                        } else if (response["status"] == "success") {
+                            $('#loction').val(response["loc_id"]);
+                            $('.address').css('display', 'none');
+                            $('#start-camera').css('display', 'block');
+                            $("#add_loctaion_form")[0].reset();
+
+                        }
+
+                    },
+
+                    error: function(error) {
+
+                        // console.log(error);
+                        toastr.error('Failed', response["msg"]);
+
+                    }
+
+                });
+
+            }));
+
+            $('.start-camera').on('click', function(e) {
+                $('.take_picture').css('display', '');
+                $('.save_done').css('display', 'none');
+                $('#canvas_show').css('display', 'none');
+                $('#video').css('display', '');
+                $("#click-photo").css('display', '');
+            });
+            $('#finish').on('click', function(e) {
+                location.reload();
+            });
+        });
         $('body').on('click', '#start-camera', async function(ev) {
             let camera_button = document.querySelector("#start-camera");
             let video = document.querySelector("#video");
             let click_button = document.querySelector("#click-photo");
+            let save_photo = document.querySelector("#save-photo");
+            $("#start-camera").css('display', 'none');
             $("#click-photo").css('display', 'block');
             $('#description').css('display', 'block');
+            $('html').find('#textlabel').css('display', 'block');
+            $('html').find('#imagelabel').css('display', 'block');
+
+
             let canvas = document.querySelector("#canvas");
-            let des=$('#description').val();
+
             let stream = await navigator.mediaDevices.getUserMedia({
                 video: true,
                 audio: false
             });
             video.srcObject = stream;
             click_button.addEventListener('click', function() {
+                $('#canvas_show').css('display', '');
+                $('#save-photo').css('display', 'block');
+                $('#video').css('display', 'none');
+                $("#click-photo").css('display', 'none');
                 canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+            });
+            save_photo.addEventListener('click', function() {
+                let des = $('#description').val();
+                let location = $("#loction").val();
                 let image_data_url = canvas.toDataURL('image/jpeg');
                 let file = dataURItoFile(image_data_url, 'image.jpg');
                 let postData = new FormData();
                 postData.append('description', des);
                 postData.append('file', file);
+                postData.append('location', location);
                 $.ajax({
                     async: true,
                     type: "post",
@@ -95,14 +236,15 @@
                     success: function(data) {
                         if (data.status == 'success') {
                             toastr.success('Success', data.msg)
-
                             $("#description").val('');
-                            // $("#click-photo").css('display','none')
+                            $(".take_picture").css('display', 'none')
+                            $(".save_done").css('display', 'block')
+
                             // console.log(image_data_url);
                         }
                     },
                     error: function(data, errorThrown) {
-                       // alert('request failed :' + errorThrown);
+                        // alert('request failed :' + errorThrown);
                     },
                     xhr: function() {
                         let xhr = new window.XMLHttpRequest();
@@ -129,6 +271,7 @@
                     }
                 });
             });
+
         });
 
         function dataURItoFile(dataURI, fileName) {
