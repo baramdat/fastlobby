@@ -79,7 +79,7 @@ class QrCodeTypeController extends Controller
                 $site_qr_type = $request->qr_type;
             }
             $qr = new SiteQrCodes();
-            $link = $request->qr_text;
+            $link = $type->id;
             QrCode::format('png')->size(200)->generate($link, 'images/codes/' . $link . '.png');
             $qr->site_id = Auth::user()->site_id;
             $qr->image = ('images/codes/' . $link . '.png');
