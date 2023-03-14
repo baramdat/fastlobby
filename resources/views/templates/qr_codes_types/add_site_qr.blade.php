@@ -80,15 +80,7 @@
                                 </select>
     
                             </div>
-                            <div class="form-group form-group col-lg-6 col-md-6 col-sm-12"  >
-
-                                <label for="exampleInputname" class="form-label mb-0">QR Text: <span
-                                        class="text-danger">*</span> </label>
-
-                                <input type="text" class="form-control" id="qr_text" name="qr_text"
-                                    placeholder="Enter text for qr">
-
-                            </div>
+                            
                             <div class="form-group form-group col-lg-6 col-md-6 col-sm-12" id="otherType" style="display: none">
 
                                 <label for="exampleInputname" class="form-label mb-0">Name: <span
@@ -96,6 +88,18 @@
 
                                 <input type="text" class="form-control" id="type_name" name="type_name"
                                     placeholder="Enter name of type">
+
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group form-group col-lg-6 col-md-6 col-sm-12"  >
+
+                                <label for="exampleInputname" class="form-label mb-0">QR Text: <span
+                                        class="text-danger">*</span> </label>
+
+                                {{-- <textarea type="text" class="form-control" id="qr_text" name="qr_text"
+                                    placeholder="Enter text for qr"> --}}
+                                    <textarea  class="form-control" name="qr_text" id="qr_text" cols="10" rows="5" placeholder="Enter text for qr"></textarea>
 
                             </div>
                             {{-- <h5>Type</h5>
